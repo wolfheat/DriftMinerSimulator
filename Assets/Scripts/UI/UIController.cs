@@ -6,6 +6,10 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
+    [SerializeField] GameObject middleCursor;
+
+
+    // OLD
     [SerializeField] TextMeshProUGUI speed;
     [SerializeField] TextMeshProUGUI tilt;
     [SerializeField] TextMeshProUGUI playerTilt;
@@ -33,7 +37,7 @@ public class UIController : MonoBehaviour
     public static bool CraftingActive { get { return Instance.craftingToggle.IsActive; }}
 
 
-    private void Start()
+    private void Awake()
     {
         if (Instance != null)
         {
@@ -41,11 +45,10 @@ public class UIController : MonoBehaviour
             return;
         }
         Instance = this;
-
-#if !UNITY_EDITOR
-        debugHelpText.SetActive(false);
-#endif
     }
+
+    public void ShowCursor(bool show = true) => middleCursor?.gameObject.SetActive(show);
+
 
     public void OnEnable()
     {        

@@ -34,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
     private const float RotationLowerLimit = 89;
     private const float RotationUpperLimit = 271;
     private const float WalkSpeed = 3.0f;
+    private const float SprintSpeed = 7.0f;
     private const float WalkSpeedNeededToMakeStepSound = 0.3f;
     private const float JumpColliderRadius = 0.4f;
     private const float JumpForce = 7f;
@@ -53,15 +54,51 @@ public class PlayerMovement : MonoBehaviour
         SavingUtility.LoadingComplete += LoadingComplete;
     }
 
+    private void Start()
+    {
+        GameState.state = GameStates.Running;
+    }
+
     private void LoadingComplete()
     {
         Debug.Log("Loading of settings complete update");
         LookSensitivity = SavingUtility.gameSettingsData.playerInputSettings.MouseSensitivity;
     }
 
+    private void Update()
+    {
+        DetemineCursor();
+        Look();
+    }
     private void FixedUpdate()
     {
         Move();
+    }
+
+    private void DetemineCursor()
+    {
+        // Right button is not held or player is dead = regain normal cursor
+        if (GameState.IsPaused || playerStats.IsDead)
+        {
+            if (Cursor.visible == true) return;
+
+            Debug.Log("Showing cursor");
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+
+            //RegainCursorPosition();
+            return;
+        }
+        else
+        {
+            if (!Cursor.visible) return;
+
+            Debug.Log("Hiding cursor");
+            // Hide cursor if changing view
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+
     }
 
     private void Move()
@@ -74,21 +111,18 @@ public class PlayerMovement : MonoBehaviour
 
         Vector2 move = Inputs.Instance.Controls.Player.Move.ReadValue<Vector2>();
         
-        if(throwCoroutine != null)
-        {
-            //if (move.magnitude != 0) Debug.Log("Can not move while being thrown");
-            return;
-        }
 
         // SIDEWAY MOVEMENT
         boosterAcceleration = move[0] * transform.right;
         // SPEED BOOSTER MOVEMENT
-        boosterAcceleration += move[1] * tilt.forward;
+        boosterAcceleration += move[1] * transform.forward;
 
-        
+        float MoveSpeed = ShiftHeld() ? SprintSpeed : WalkSpeed;
+
 
         if (rb.useGravity)
         {
+
             //remove up and down
             boosterAcceleration = new Vector3(boosterAcceleration.x, 0, boosterAcceleration.z);
             
@@ -97,8 +131,8 @@ public class PlayerMovement : MonoBehaviour
 
             // Limit movement speed
             Vector3 planeParts = new Vector3(rb.velocity.x, 0, rb.velocity.z);
-            if (planeParts.magnitude > WalkSpeed)
-                planeParts = planeParts.normalized * WalkSpeed;
+            if (planeParts.magnitude > MoveSpeed)
+                planeParts = planeParts.normalized * MoveSpeed;
 
             // Add dampening to movement
             planeParts *= Mathf.Pow(dampening, Time.deltaTime);
@@ -112,19 +146,8 @@ public class PlayerMovement : MonoBehaviour
                 float upDown = Inputs.Instance.Controls.Player.UpDown.ReadValue<float>();
                 if (upDown==1)
                 {
-                    // If moving upwards or not in contact with ground dont jump
-                    Collider[] colliders = Physics.OverlapSphere(feet.transform.position, JumpColliderRadius, jumpables);
-                    bool onGround = false;
-                    foreach (Collider item in colliders)
-                    {
-                        Debug.Log("Collider " + item.gameObject.name + " is "+item.gameObject.layer);
-                        if ((jumpables & (1 << item.gameObject.layer)) != 0)
-                        {
-                            onGround = true; 
-                            break;
-                        }
-                    }
-                    if (onGround)
+                    
+                    if (OnGround())
                     {
                         rb.AddForce(Vector3.up*JumpForce,ForceMode.Impulse);
                         jumpTimer = JumpDelay;
@@ -143,7 +166,7 @@ public class PlayerMovement : MonoBehaviour
             //DampenSpeedInDoors();
 
             // STEP SOUND
-            if (planeParts.magnitude > WalkSpeedNeededToMakeStepSound)
+            if (planeParts.magnitude > WalkSpeedNeededToMakeStepSound && OnGround())
                 SoundMaster.Instance?.PlayStepSound();
 
         }
@@ -174,6 +197,10 @@ public class PlayerMovement : MonoBehaviour
         StopRotations();
     }
 
+    private bool OnGround() => Physics.OverlapSphere(feet.transform.position, JumpColliderRadius, jumpables).Length > 0;
+
+    private bool ShiftHeld() => Inputs.Instance.Controls.Player.Shift.ReadValue<float>() > 0;
+        
     private bool StandingOnCollider()
     {
         bool hitCollider = Physics.Raycast(transform.position, Vector3.down, 1f);
@@ -268,8 +295,8 @@ public class PlayerMovement : MonoBehaviour
                 rotationAngle = RotationUpperLimit - oldAngle;
             }
             tilt.transform.Rotate(rotationAngle, 0, 0, Space.Self);
-            uiController.SetTilt(tilt.transform.localRotation.eulerAngles.x);
-            uiController.SetPlayerTilt(rb.transform.localRotation.eulerAngles);
+            //uiController.SetTilt(tilt.transform.localRotation.eulerAngles.x);
+            //uiController.SetPlayerTilt(rb.transform.localRotation.eulerAngles);
             // At 334 degrees
 
         }
