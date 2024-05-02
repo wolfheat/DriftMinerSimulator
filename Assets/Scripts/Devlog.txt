@@ -1,0 +1,63 @@
+﻿DEVLOG FOR Drift Miner Simulator
+May 2024
+
+* IDEAS
+- Make a Drift miner simulator game that player moves slowly to build a driftmine and mine. Also cutting logs and making building material.
+
+
+1/5		* Started Game Development
+		
+
+
+
+
+		// TODO //
+		* Walking Sound is off change to better grass walking and way of making steps
+		
+		* Should player be firsty person or able to change?
+
+		
+		 - MAIN MENU
+		* Fix a menu
+
+		 - MECHANICS
+		* Player jumps to high?
+		* Figure out what dground to use to be able to break it and mine into it
+
+
+		 - SOUNDS
+		
+		-- ASSETS USED --
+		* Barking Dog - 3D Scifi Base Vol 1 - Single Entity
+		* Ilias Kap - Workplace Tools -  Standard EULA
+
+		 - FONTS
+		* Gomarice - Shiratama Dango - Apache-2.0
+		* Aenigma Games & Fonts - Euphoric - Commersial Use
+
+		 - MUSIC		
+		* Kevin MacLeod - Airport Lounge - Royalty Free Upbeat
+		* Moire - Space Ranger - Royalty Free Upbeat
+		* Zapsplat - Tropical Dawn - Music from https://www.zapsplat.com
+
+		 - TOOLS
+		* AI Art - Playground
+		* Made in Unity
+				
+		MAYBE
+		
+		REJECTED
+		
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 		
+
+		CHECKLIST FOR BETTER PLAYER EXPERIENCE
+
+		* BUGS, CRASHES, SLOW PERFORMANCE
+		* MISLEADING MARKETING
+		* NOT ENGAGING WITH COMMUNITY
+		* CONFIGURABLE CONTROLS, 
+		* TEXT TO SMALL, 
+		* CONTRAST, 
+		* MISSING FEATURE
+
+------ ------- ------
