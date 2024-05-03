@@ -52,8 +52,8 @@ public class UIController : MonoBehaviour
 
     public void OnEnable()
     {        
-        Inputs.Instance.Controls.Player.Tab.started += Toggle;
-        Inputs.Instance.Controls.Player.Esc.started += Pause;
+        //Inputs.Instance.Controls.Player.Tab.started += Toggle;
+        ///Inputs.Instance.Controls.Player.Esc.started += Pause;
 
         Pause(false);
     }
@@ -61,8 +61,8 @@ public class UIController : MonoBehaviour
     public void OnDisable()
     {
         
-        Inputs.Instance.Controls.Player.Tab.started -= Toggle;
-        Inputs.Instance.Controls.Player.Esc.started -= Pause;
+        //Inputs.Instance.Controls.Player.Tab.started -= Toggle;
+        //Inputs.Instance.Controls.Player.Esc.started -= Pause;
     }
 
 

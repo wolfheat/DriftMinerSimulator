@@ -15,6 +15,9 @@ public class GridVisualizer : MonoBehaviour
     [SerializeField] GameObject gridPointAirPrefab;
     [SerializeField] GameObject gridPointPillarPrefab;
 
+    [SerializeField] GameObject gridHolder;
+
+
     [SerializeField] int GridSize;
     [SerializeField] bool UsePillars;
 
@@ -24,15 +27,33 @@ public class GridVisualizer : MonoBehaviour
     Mesh mesh;
     Vector3[] vertices;
     int[] tris;
+    [SerializeField] private int GridLimit;
+
     void Start()
     {
+        if(triangles.Count==0)
+            Recalculate();
+    }
+
+    [ContextMenu("Recalculate")]
+    public void Recalculate()
+    {
         cubes = new Vector3Int[GridSize * GridSize * GridSize];
+        ClearGrid();
         CreateGrid(GridSize);
         UpdateCubes();
 
         TrianglesToVertices();
 
         MakeMesh();
+    }
+
+    private void ClearGrid()
+    {
+        Debug.Log("Clear Grid");
+        foreach (Transform t in gridHolder.GetComponentsInChildren<Transform>()) 
+            if(t != gridHolder.transform) 
+                DestroyImmediate(t.gameObject);
     }
 
     private void TrianglesToVertices()
@@ -48,6 +69,7 @@ public class GridVisualizer : MonoBehaviour
             vertices[v++] = t.triB;
             tris[v] = v;
             vertices[v++] = t.triC;
+            //Debug.Log("Painting Triangle: ["+t.triA+","+t.triB+","+t.triC+"]");
         }
     }
 
@@ -110,6 +132,7 @@ public class GridVisualizer : MonoBehaviour
                 tri.triA = (cornPos[a0] + cornPos[a1]) * 0.5f;
                 tri.triB = (cornPos[b0] + cornPos[b1]) * 0.5f;
                 tri.triC = (cornPos[c0] + cornPos[c1]) * 0.5f;
+                triangles.Add(tri);
             }
 
         }
@@ -134,16 +157,20 @@ public class GridVisualizer : MonoBehaviour
                         cubes[i * dim * dim + j * dim + k] = pos;
                     float dist = Vector3Int.Distance(pos, center);
                     int type = (dist <= dim/2-1) ? 1 : 0;
-                    GameObject gridPoint = type == 1 ? Instantiate(gridPointGroundPrefab, transform): Instantiate(gridPointAirPrefab, transform);
-                    gridPoint.transform.position = pos;
                     grid[i][j][k] = type;
+
+                    if(dim <= GridLimit)
+                    {
+                        GameObject gridPoint = type == 1 ? Instantiate(gridPointGroundPrefab, gridHolder.transform) : Instantiate(gridPointAirPrefab, gridHolder.transform);
+                        gridPoint.transform.position = pos;
+                    }
 
                     if (UsePillars)
                     {
                         if (j == 0){
                             if ((i == 0 || i == dim) && (k == 0 || k == dim))
                             {
-                                GameObject pillar = Instantiate(gridPointPillarPrefab, transform);
+                                GameObject pillar = Instantiate(gridPointPillarPrefab, gridHolder.transform);
                                 pillar.transform.position = new Vector3(i,dim/2,k);
                                 pillar.transform.localScale =new Vector3(pillar.transform.localScale.x, dim, pillar.transform.localScale.z);
                             }
