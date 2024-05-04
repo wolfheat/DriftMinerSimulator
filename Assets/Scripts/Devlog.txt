@@ -8,6 +8,10 @@ May 2024
 1/5		* Started Game Development
 2/5		* Testing with Marshing Cubes		
 3/5		* Visualization works
+4/5		* Mesh is correctly reset now
+		* UV wrapping now works for all directions
+		* Right clicking takes a box of chunk away from the mesh -
+
 
 
 

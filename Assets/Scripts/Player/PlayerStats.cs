@@ -33,6 +33,7 @@ public class PlayerStats : MonoBehaviour
     private const float delay = 0.1f;
     WaitForSeconds coroutineDelay = new WaitForSeconds(delay);
     public bool IsDead { get; private set; }
+    public static float PlayerReach { get; } = 5f;
 
     public Action<float, int> OxygenUpdated;
     public Action<float, int> HealthUpdated;
