@@ -1,7 +1,13 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+
+public enum CubeType {Cube,Sphere,Pyramid,Random}
+
+[ExecuteInEditMode]
 public class GridVisualizer : MonoBehaviour
 {
+    [SerializeField] CubeType cubetype = CubeType.Cube;
     [SerializeField] GameObject gridPointGroundPrefab;
     [SerializeField] GameObject gridPointAirPrefab;
     [SerializeField] GameObject gridPointPillarPrefab;
@@ -9,9 +15,11 @@ public class GridVisualizer : MonoBehaviour
     [SerializeField] MeshFilter meshFilter;
     [SerializeField] MeshCollider meshCollider;
     [SerializeField] int GridSize;
+    [SerializeField] float GridScale = 0.5f;
     [SerializeField] bool UsePillars;
     [SerializeField] private int GridShowLimit;
     [SerializeField] private int SpacingToBorder;
+    public float GridScaling => GridScale;
 
     Mesh mesh;
 
@@ -23,19 +31,22 @@ public class GridVisualizer : MonoBehaviour
     int[] tris;
     Vector2[] uv;
 
-    void Start()
+
+
+    void Awake()
     {
         SetMesh();
-        if (triangles.Count==0)
+        if (triangles.Count == 0)
             Recalculate();
     }
 
+    [ContextMenu("Set Mesh")]
     private void SetMesh()
     {
-        if (mesh == null)
-            mesh = meshFilter.sharedMesh;
+        meshFilter.sharedMesh = new Mesh();
+        mesh = meshFilter.sharedMesh;
     }
-
+    
     public void Carve(CarvingBox box)
     {
         // Requesting to carve out the box
@@ -66,6 +77,8 @@ public class GridVisualizer : MonoBehaviour
     {
         ClearGrid();
         CreateGrid(GridSize);
+
+
         UpdateCubes();
 
         TrianglesToVertices();
@@ -74,7 +87,6 @@ public class GridVisualizer : MonoBehaviour
     }
 
     [ContextMenu("Clear Mesh")]
-
     private void ClearMesh()
     {
         triangles.Clear();
@@ -96,6 +108,7 @@ public class GridVisualizer : MonoBehaviour
         vertices = new Vector3[amtVertices];
         uv = new Vector2[amtVertices];
         tris = new int[amtVertices];
+        Debug.Log("amount Vertices "+amtVertices);
 
         int v = 0;
         int direction = 0;
@@ -117,8 +130,8 @@ public class GridVisualizer : MonoBehaviour
                 float dotProductY = Vector3.Dot(normal, Vector3.right);
                 bool isPerpendicularToX = Mathf.Abs(dotProductY) > 0.9f;                
                 direction = isPerpendicularToX ? 2 : 1;
-                if (isPerpendicularToX) Debug.Log("Triangel is perpendicular to Z and in line of X Axis: "+dotProductY);
-                else Debug.Log("Triangel is perpendicular to Z" + dotProductY);
+                //if (isPerpendicularToX) Debug.Log("Triangel is perpendicular to Z and in line of X Axis: "+dotProductY);
+                //else Debug.Log("Triangel is perpendicular to Z" + dotProductY);
             }
 
             tris[v] = v;
@@ -191,9 +204,10 @@ public class GridVisualizer : MonoBehaviour
 
                 Triangle tri;
 
-                tri.triA = (cornPos[a0] + cornPos[a1]) * 0.5f;
-                tri.triB = (cornPos[b0] + cornPos[b1]) * 0.5f;
-                tri.triC = (cornPos[c0] + cornPos[c1]) * 0.5f;
+                tri.triA = (cornPos[a0] + cornPos[a1]) * 0.5f * GridScale;
+                tri.triB = (cornPos[b0] + cornPos[b1]) * 0.5f * GridScale;
+                tri.triC = (cornPos[c0] + cornPos[c1]) * 0.5f * GridScale;
+                //  Debug.Log("Tri = "+tri.triA+","+tri.triB+","+tri.triC);
                 triangles.Add(tri);
             }
 
@@ -202,21 +216,44 @@ public class GridVisualizer : MonoBehaviour
 
     private int CarveFromGrid(CarvingBox box)
     {
-        
+        Vector3 StartBounds = box.StartBounds - transform.position;
+        Vector3 EndBounds = box.EndBounds - transform.position;
+        DebugLine(StartBounds, EndBounds);
+        Debug.Log("Carve from grid "+StartBounds+" "+EndBounds);
+
+        Vector3Int StartBoundsInt = Vector3Int.RoundToInt(StartBounds);
+        Vector3Int EndBoundsInt = Vector3Int.RoundToInt(EndBounds);
+
+        Debug.Log("Carve from grid "+StartBoundsInt+" to "+EndBoundsInt);
+
         int changes = 0;
 
-        for (int i = Mathf.RoundToInt(box.StartBounds.x); i <= Mathf.RoundToInt(box.EndBounds.x); i++)
+        for (int i = StartBoundsInt.x; i <= EndBoundsInt.x; i++)
         {
-            for (int j = Mathf.RoundToInt(box.StartBounds.y); j <= Mathf.RoundToInt(box.EndBounds.y); j++)
+            for (int j = StartBoundsInt.y; j <= EndBoundsInt.y; j++)
             {
-                for (int k = Mathf.RoundToInt(box.StartBounds.z); k <= Mathf.RoundToInt(box.EndBounds.z); k++)
+                for (int k = StartBoundsInt.z; k <= EndBoundsInt.z; k++)
                 {
+                    if(i<0 || i>=grid.Length || j < 0 || j >= grid[i].Length || k < 0 || k >= grid[i][j].Length) continue;
+
                     grid[i][j][k] = 0;
                     changes++;
                 }
             }
         }
         return changes;
+    }
+
+    private void DebugLine(Vector3 startBounds, Vector3 endBounds)
+    {
+
+        Debug.DrawLine(startBounds, new Vector3(startBounds.x,startBounds.y,endBounds.z),Color.white,3f);
+        Debug.DrawLine(startBounds, new Vector3(startBounds.x,endBounds.y,startBounds.z), Color.white, 3f);
+        Debug.DrawLine(startBounds, new Vector3(endBounds.x, endBounds.y,endBounds.y), Color.white, 3f);
+
+        Debug.DrawLine(endBounds, new Vector3(startBounds.x,startBounds.y,endBounds.z), Color.white, 3f);
+        Debug.DrawLine(endBounds, new Vector3(startBounds.x,endBounds.y,startBounds.z), Color.white, 3f);
+        Debug.DrawLine(endBounds, new Vector3(endBounds.x, endBounds.y,endBounds.y), Color.white, 3f);
     }
 
     private void CreateGrid(int dim)
@@ -236,16 +273,34 @@ public class GridVisualizer : MonoBehaviour
                     Vector3Int pos = new Vector3Int(i, j, k);
                     if (i != dim && j != dim && k != dim)
                         cubes[i * dim * dim + j * dim + k] = pos;
-                    float dist = Vector3Int.Distance(pos, center);
-                    int type = (dist <= dim/2-SpacingToBorder) ? 1 : 0;
+
+
+                    int type=0;
+                    switch (cubetype)
+                    {
+                        case CubeType.Cube:
+                            type = (i == 0 || j == 0 || k == 0 || i == dim || j == dim || k == dim) ? 0 : 1;
+                            break;
+                        case CubeType.Sphere:
+                            float dist = Vector3Int.Distance(pos, center);
+                            type = (dist <= dim / 2 - SpacingToBorder) ? 1 : 0;
+                            break;
+                        case CubeType.Pyramid:
+                            break;
+                        case CubeType.Random:
+                            break;
+                    }
+                    
                     grid[i][j][k] = type;
 
+                    // Only to show grid points
                     if(dim <= GridShowLimit)
                     {
                         GameObject gridPoint = type == 1 ? Instantiate(gridPointGroundPrefab, gridHolder.transform) : Instantiate(gridPointAirPrefab, gridHolder.transform);
                         gridPoint.transform.position = pos;
                     }
 
+                    // Only to show grid pillars
                     if (UsePillars)
                     {
                         if (j == 0){

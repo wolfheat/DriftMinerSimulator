@@ -42,13 +42,13 @@ public class PlayerMovement : MonoBehaviour
         
     private float jumpTimer;
     private Coroutine throwCoroutine;
-    private LayerMask jumpables;
+    [SerializeField] private LayerMask jumpables;
 
     public void OnEnable()
     {
         screenCenter = new Vector2();
         lastSafePoint = rb.transform.position;
-        jumpables = 1 << LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("Interactables");
+        //jumpables = 1 << LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("Interactables");
         Debug.Log("Jumpables set to: "+Convert.ToString(jumpables,2));
         Debug.Log("Mouse Sensitivity updated to: "+LookSensitivity);
         SavingUtility.LoadingComplete += LoadingComplete;

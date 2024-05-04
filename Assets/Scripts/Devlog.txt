@@ -11,6 +11,10 @@ May 2024
 4/5		* Mesh is correctly reset now
 		* UV wrapping now works for all directions
 		* Right clicking takes a box of chunk away from the mesh -
+		* Made Chunks work even when not placed at origo
+
+
+		* Scaling of chunk does not work with boxremover, fix scaling issue
 
 
 
@@ -27,7 +31,6 @@ May 2024
 		 - MECHANICS
 		* Player jumps to high?
 		* Figure out what dground to use to be able to break it and mine into it
-
 
 		 - SOUNDS
 		

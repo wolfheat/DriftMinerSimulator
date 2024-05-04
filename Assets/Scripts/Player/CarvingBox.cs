@@ -20,11 +20,15 @@ public class CarvingBox : MonoBehaviour
     private void AlignMe()
     {
         Debug.Log("Align Box");
+        Debug.Log("Parent is "+transform.parent.name);        
 
-        Debug.Log("Box is aligned from position: " + box.transform.position);
+        float scaleBy = transform.parent?.GetComponent<GridVisualizer>()?.GridScaling ?? 1f;
+        Debug.Log("Parent scale is "+scaleBy);
 
-        Vector3 startBounds = box.bounds.min;
-        Vector3 endBounds = box.bounds.max;
+        box.transform.localScale = Vector3.one * scaleBy;
+
+        Vector3 startBounds = box.bounds.min - transform.position;
+        Vector3 endBounds = box.bounds.max - transform.position;
         /*
         // Visualize the bounding box by placing small objects at corners
         GameObject gridPoint = Instantiate(gridPointGroundPrefab, transform);
@@ -34,12 +38,14 @@ public class CarvingBox : MonoBehaviour
         */
 
         // Align center to middle of a tile
-        transform.position = new Vector3(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.y), Mathf.RoundToInt(transform.position.z));
+        transform.position = new Vector3(Mathf.RoundToInt(transform.position.x/scaleBy)*scaleBy, Mathf.RoundToInt(transform.position.y / scaleBy) * scaleBy, Mathf.RoundToInt(transform.position.z / scaleBy) * scaleBy);
 
 
         // Set Properties
         StartBounds = box.bounds.min;
-        EndBounds = box.bounds.max;        
+        EndBounds = box.bounds.max;
+        
+        //Debug.Log("Carving [" + i + "," + j + "," + k + "]");
 
         /*
         Debug.Log("Box is aligned to position: " + box.transform.position);
