@@ -8,6 +8,7 @@ public class CarvingBox : MonoBehaviour
 
     public Vector3 StartBounds { get; private set; }
     public Vector3 EndBounds { get; private set; }
+    public float SetScale { get; private set; }
 
     private void OnEnable()
     {
@@ -23,6 +24,9 @@ public class CarvingBox : MonoBehaviour
         Debug.Log("Parent is "+transform.parent.name);        
 
         float scaleBy = transform.parent?.GetComponent<GridVisualizer>()?.GridScaling ?? 1f;
+
+        SetScale = scaleBy;
+
         Debug.Log("Parent scale is "+scaleBy);
 
         box.transform.localScale = Vector3.one * scaleBy;
@@ -39,13 +43,15 @@ public class CarvingBox : MonoBehaviour
 
         // Align center to middle of a tile
         transform.position = new Vector3(Mathf.RoundToInt(transform.position.x/scaleBy)*scaleBy, Mathf.RoundToInt(transform.position.y / scaleBy) * scaleBy, Mathf.RoundToInt(transform.position.z / scaleBy) * scaleBy);
+        Debug.Log("Box is aligned to position: " + box.transform.position);
+
 
 
         // Set Properties
         StartBounds = box.bounds.min;
         EndBounds = box.bounds.max;
         
-        //Debug.Log("Carving [" + i + "," + j + "," + k + "]");
+        //Debug.LogError("PLaced Box");
 
         /*
         Debug.Log("Box is aligned to position: " + box.transform.position);

@@ -12,11 +12,12 @@ May 2024
 		* UV wrapping now works for all directions
 		* Right clicking takes a box of chunk away from the mesh -
 		* Made Chunks work even when not placed at origo
+		* Chunks are copyable
+5/5		* Scaling of chunk work with boxremover, scaling issue fixed
+		* All cunks are made non convex -
 
-
-		* Scaling of chunk does not work with boxremover, fix scaling issue
-
-
+		* Make chunks integrate with each other
+		* Make player not rotate when bumbing into walls
 
 
 		// TODO //

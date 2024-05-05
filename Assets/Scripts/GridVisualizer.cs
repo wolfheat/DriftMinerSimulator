@@ -95,7 +95,7 @@ public class GridVisualizer : MonoBehaviour
 
     private void ClearGrid()
     {
-        Debug.Log("Clear Grid");
+        //Debug.Log("Clear Grid");
         foreach (Transform t in gridHolder.GetComponentsInChildren<Transform>()) 
             if(t != gridHolder.transform) 
                 DestroyImmediate(t.gameObject);
@@ -108,7 +108,7 @@ public class GridVisualizer : MonoBehaviour
         vertices = new Vector3[amtVertices];
         uv = new Vector2[amtVertices];
         tris = new int[amtVertices];
-        Debug.Log("amount Vertices "+amtVertices);
+        //Debug.Log("amount Vertices "+amtVertices);
 
         int v = 0;
         int direction = 0;
@@ -218,16 +218,19 @@ public class GridVisualizer : MonoBehaviour
     {
         Vector3 StartBounds = box.StartBounds - transform.position;
         Vector3 EndBounds = box.EndBounds - transform.position;
+        Vector3 LocalPosition = box.transform.localPosition;
         DebugLine(StartBounds, EndBounds);
-        Debug.Log("Carve from grid "+StartBounds+" "+EndBounds);
+        Debug.Log("Box original is placed at pos "+box.StartBounds+" to "+ box.EndBounds);
+        Debug.Log("Box internal is placed at pos "+StartBounds+" to "+EndBounds);
+        Debug.Log("Box local is placed at pos "+LocalPosition);
 
-        Vector3Int StartBoundsInt = Vector3Int.RoundToInt(StartBounds);
-        Vector3Int EndBoundsInt = Vector3Int.RoundToInt(EndBounds);
+        Vector3Int StartBoundsInt = Vector3Int.RoundToInt(StartBounds / box.SetScale);
+        Vector3Int EndBoundsInt = Vector3Int.RoundToInt(EndBounds / box.SetScale);
 
-        Debug.Log("Carve from grid "+StartBoundsInt+" to "+EndBoundsInt);
+        Debug.Log("Carve indexes from "+StartBoundsInt+" to "+EndBoundsInt);
 
         int changes = 0;
-
+        Debug.Log("Grid "+grid.Length);
         for (int i = StartBoundsInt.x; i <= EndBoundsInt.x; i++)
         {
             for (int j = StartBoundsInt.y; j <= EndBoundsInt.y; j++)

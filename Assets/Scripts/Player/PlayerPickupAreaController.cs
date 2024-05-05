@@ -21,7 +21,7 @@ public class PlayerPickupAreaController : MonoBehaviour
     {
         Debug.Log("Raycasting forward");
         // Raycast forward from camera
-        if(Physics.Raycast(transform.position, tilt.transform.forward, out RaycastHit hit, PlayerStats.PlayerReach, mask))
+        if(Physics.Raycast(tilt.transform.position, tilt.transform.forward, out RaycastHit hit, PlayerStats.PlayerReach, mask))
         {
             Debug.Log("Hit something: "+hit.collider.name);
 
@@ -41,7 +41,7 @@ public class PlayerPickupAreaController : MonoBehaviour
 
         }
 
-        Debug.DrawLine(transform.position, transform.position + tilt.transform.forward * PlayerStats.PlayerReach, Color.cyan, 2f);
+        Debug.DrawLine(tilt.transform.position, tilt.transform.position + tilt.transform.forward * PlayerStats.PlayerReach, Color.cyan, 2f);
 
 
     }
