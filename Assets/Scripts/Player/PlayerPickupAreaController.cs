@@ -25,7 +25,7 @@ public class PlayerPickupAreaController : MonoBehaviour
         {
             Debug.Log("Hit something: "+hit.collider.name);
 
-            GridVisualizer hitChunk = hit.collider.GetComponent<GridVisualizer>();
+            Chunk hitChunk = hit.collider.GetComponent<Chunk>();
 
             if(hitChunk == null)
             {

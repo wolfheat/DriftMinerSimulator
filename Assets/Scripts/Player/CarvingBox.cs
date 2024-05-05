@@ -23,7 +23,7 @@ public class CarvingBox : MonoBehaviour
         Debug.Log("Align Box");
         Debug.Log("Parent is "+transform.parent.name);        
 
-        float scaleBy = transform.parent?.GetComponent<GridVisualizer>()?.GridScaling ?? 1f;
+        float scaleBy = transform.parent?.GetComponent<Chunk>()?.GridScaling ?? 1f;
 
         SetScale = scaleBy;
 

@@ -15,8 +15,12 @@ May 2024
 		* Chunks are copyable
 5/5		* Scaling of chunk work with boxremover, scaling issue fixed
 		* All cunks are made non convex -
+		* Fixed alignment distance issue between chunks
+		* Chunks now integrate and take affect from each other as a greater mass -
 
-		* Make chunks integrate with each other
+
+		* Make linked chunks update more efficient
+
 		* Make player not rotate when bumbing into walls
 
 
