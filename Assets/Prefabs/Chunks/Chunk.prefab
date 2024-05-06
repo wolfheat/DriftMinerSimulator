@@ -47,22 +47,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7da9bfc03636ff47b16593315b813cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cubetype: 3
+  cubetype: 0
+  GridSize: 10
+  GridScale: 0.3
+  meshFilter: {fileID: 5011074907997168705}
+  meshCollider: {fileID: 5878496798016780272}
   gridPointGroundPrefab: {fileID: 1772111497852852483, guid: 9b57877ba5cbf844a8bae01a48885ccf,
     type: 3}
   gridPointAirPrefab: {fileID: 1772111497852852483, guid: 7cd8145dc913d1e4cbcd8b2daad95460,
     type: 3}
   gridPointBorrowPrefab: {fileID: 1772111497852852483, guid: d280fef3620e6b44ca0caec2dbbc3028,
     type: 3}
-  gridPointPillarPrefab: {fileID: 7048638504580311163, guid: 7339d1d51c696f74386104999fcdddd4,
-    type: 3}
-  meshFilter: {fileID: 5011074907997168705}
-  meshCollider: {fileID: 5878496798016780272}
-  GridSize: 10
-  GridScale: 0.3
-  UsePillars: 0
   GridShowLimit: 2
-  SpacingToBorder: 1
 --- !u!23 &1339921727116455848
 MeshRenderer:
   m_ObjectHideFlags: 0

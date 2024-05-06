@@ -17,7 +17,10 @@ May 2024
 		* All cunks are made non convex -
 		* Fixed alignment distance issue between chunks
 		* Chunks now integrate and take affect from each other as a greater mass -
+6/5		* Refactoring of code
+		* Chunks starts to link together correctly -
 
+		* Make hitting 0 side of a cunk take away from the previous chunk currently limited since chunks get their 0 border value from previous chunk
 
 		* Make linked chunks update more efficient
 

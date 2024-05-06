@@ -1,5 +1,3 @@
-using System;
-using UnityEditor;
 using UnityEngine;
 
 public class ChunkGridSpawner : MonoBehaviour
@@ -48,6 +46,24 @@ public class ChunkGridSpawner : MonoBehaviour
 
         // Return the pixel
         return grid[chunkID.x][chunkID.y][chunkID.z].GetGridValue(pixelPos);
+    }
+    
+    public static void SetPixelAt(Vector3Int chunkID, Vector3Int pixelPos, int val)
+    {
+        // Outside grid
+        if(chunkID.x<0 || chunkID.y <0 || chunkID.z <0 || chunkID.x >= grid.Length || chunkID.y >= grid[0].Length ||  chunkID.z >= grid[0][0].Length)
+            return;
+
+        // Inside - move to other side
+        if(pixelPos.x <= 0)
+            pixelPos.x += chunkPrefabStatic.GridSize;
+        if(pixelPos.y <= 0)
+            pixelPos.y += chunkPrefabStatic.GridSize;
+        if(pixelPos.z <= 0)
+            pixelPos.z += chunkPrefabStatic.GridSize;
+
+        // Set the pixel
+        grid[chunkID.x][chunkID.y][chunkID.z].SetGridValue(pixelPos,val);
     }
 
     // Update is called once per frame

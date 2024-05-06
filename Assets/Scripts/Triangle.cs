@@ -6,7 +6,7 @@ public struct Triangle
     public Vector3 triB;
     public Vector3 triC;
 
-    public Vector2 TriAsVector2(int dir, int point)
+    public Vector2 GetTriUVMapping(int dir, int point)
     {
         Vector3 tri;
         switch (point)

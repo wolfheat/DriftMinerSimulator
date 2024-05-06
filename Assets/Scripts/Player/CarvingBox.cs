@@ -27,7 +27,7 @@ public class CarvingBox : MonoBehaviour
 
         SetScale = scaleBy;
 
-        Debug.Log("Parent scale is "+scaleBy);
+        //Debug.Log("Parent scale is "+scaleBy);
 
         box.transform.localScale = Vector3.one * scaleBy;
 
@@ -43,7 +43,7 @@ public class CarvingBox : MonoBehaviour
 
         // Align center to middle of a tile
         transform.position = new Vector3(Mathf.RoundToInt(transform.position.x/scaleBy)*scaleBy, Mathf.RoundToInt(transform.position.y / scaleBy) * scaleBy, Mathf.RoundToInt(transform.position.z / scaleBy) * scaleBy);
-        Debug.Log("Box is aligned to position: " + box.transform.position);
+        //Debug.Log("Box is aligned to position: " + box.transform.position);
 
 
 
