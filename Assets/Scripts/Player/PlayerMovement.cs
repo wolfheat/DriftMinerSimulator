@@ -82,7 +82,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (Cursor.visible == true) return;
 
-            Debug.Log("Showing cursor");
+            //Debug.Log("Showing cursor");
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
 
@@ -93,7 +93,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (!Cursor.visible) return;
 
-            Debug.Log("Hiding cursor");
+            //Debug.Log("Hiding cursor");
             // Hide cursor if changing view
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;

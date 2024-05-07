@@ -84,10 +84,7 @@ public class Chunk : MonoBehaviour
 
     public void Carve(Vector3Int start, Vector3Int end)
     {
-        Debug.Log("Carve pixels "+start+" to "+end);
-
-
-
+        //Debug.Log("Carve pixels "+start+" to "+end);
 
         // Carve out the box
         if (CarveFromGrid(start,end) == 0)
@@ -298,7 +295,7 @@ public class Chunk : MonoBehaviour
         // Carve different boxes on all affected chunks 
         // Update affected Chunks in correct order
 
-        Debug.Log("Carving Box "+StartBoundsInt+" to "+EndBoundsInt);
+        //Debug.Log("Carving Box "+StartBoundsInt+" to "+EndBoundsInt);
 
         int changes = 0;
         for (int i = StartBoundsInt.x; i <= EndBoundsInt.x; i++)

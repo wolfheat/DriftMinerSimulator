@@ -21,12 +21,11 @@ May 2024
 		* Chunks starts to link together correctly -
 7/5		* Chunks are now all affected by a caeve independently
 		* All blocks that has pixels taken away update themself-
-				
+		* SandBox created, Non grid tiles counts as solid		
+		
 
 		* Make linked chunks update more efficient
-
 		* Make player not rotate when bumbing into walls
-
 
 		// TODO //
 		* Walking Sound is off change to better grass walking and way of making steps

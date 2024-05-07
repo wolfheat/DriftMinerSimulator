@@ -17,14 +17,28 @@ public class PlayerPickupAreaController : MonoBehaviour
     private void OnDisable() => Inputs.Instance.Controls.Player.RClick.started -= RightClick;
     private void RightClick(InputAction.CallbackContext context) => DetermineClickPoint();
 
+    bool allowCarve = true;
+    float allowTimer = 0f;
+    const float AllowTime = 0.1f;
+
+    private void Update()
+    {
+        if (allowTimer > 0) { 
+            allowTimer -= Time.deltaTime;
+            if(allowTimer <= 0)
+                allowCarve = true;
+        }
+        if (Inputs.Instance.Controls.Player.RClick.ReadValue<float>() != 0f) 
+            DetermineClickPoint();
+    }
+
     private void DetermineClickPoint()
     {
-        Debug.Log("Raycasting forward");
-        // Raycast forward from camera
-        if(Physics.Raycast(tilt.transform.position, tilt.transform.forward, out RaycastHit hit, PlayerStats.PlayerReach, mask))
-        {
-            Debug.Log("Hit something: "+hit.collider.name);
+        if (!allowCarve) return;
 
+        // Raycast forward from camera
+        if (Physics.Raycast(tilt.transform.position, tilt.transform.forward, out RaycastHit hit, PlayerStats.PlayerReach, mask))
+        {
             Chunk hitChunk = hit.collider.GetComponent<Chunk>();
 
             if(hitChunk == null)
@@ -32,6 +46,8 @@ public class PlayerPickupAreaController : MonoBehaviour
                 Debug.LogWarning("This hit does not contain a GridVisualizer");
                 return;
             }
+            allowCarve = false;
+            allowTimer = AllowTime;
 
             // Paint a box here
             CarvingBox box = Instantiate(hitShowPrefab, hit.point, Quaternion.identity, hitChunk.transform);
