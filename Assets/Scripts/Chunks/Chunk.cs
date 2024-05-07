@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public enum CubeType {DefaultFilled, Cube, Sphere,Pyramid}
 
@@ -81,11 +82,41 @@ public class Chunk : MonoBehaviour
     private void SetMesh() => mesh = meshFilter.sharedMesh = new Mesh();
 
 
+    public void Carve(Vector3Int start, Vector3Int end)
+    {
+        Debug.Log("Carve pixels "+start+" to "+end);
+
+
+
+
+        // Carve out the box
+        if (CarveFromGrid(start,end) == 0)
+            return;
+        CompleteMesh();
+    }
+
     public void Carve(CarvingBox box)
     {
-        // Requesting to carve out the box
-        if (CarveFromGrid(box) == 0)
-            return;
+        // Initial Carving process - happens at the Raycasted Chunk
+        // - recived the entire bounding box here and it separates into different boxes for different chunks
+        Vector3 StartBounds = box.StartBounds - transform.position;
+        Vector3 EndBounds = box.EndBounds - transform.position;
+
+        Vector3Int StartBoundsInt = Vector3Int.RoundToInt(StartBounds / box.SetScale);
+        Vector3Int EndBoundsInt = Vector3Int.RoundToInt(EndBounds / box.SetScale);
+
+        // For the active chunk only carve pixels inside chunk
+        Vector3Int ChunkStartBoundsInt = StartBoundsInt;
+        ChunkStartBoundsInt.Clamp(Vector3Int.zero, Vector3Int.one * GridSize);
+
+        Vector3Int ChunkEndBoundsInt = Vector3Int.RoundToInt(EndBounds / box.SetScale);
+        ChunkEndBoundsInt.Clamp(Vector3Int.zero, Vector3Int.one * GridSize);
+
+        // Send Carve command to all neighbor Chunks
+        ChunkGridSpawner.NotifyCarveNeighbors(StartBoundsInt, EndBoundsInt, GridIndex);
+
+        // Carve this Chunk
+        Carve(StartBoundsInt, EndBoundsInt);
 
         CompleteMesh();
     }
@@ -260,67 +291,28 @@ public class Chunk : MonoBehaviour
         }
         CompleteMesh();
     }
-    private int CarveFromGrid(CarvingBox box)
+
+    private int CarveFromGrid(Vector3Int StartBoundsInt, Vector3Int EndBoundsInt)
     {
-        Vector3 StartBounds = box.StartBounds - transform.position;
-        Vector3 EndBounds = box.EndBounds - transform.position;
-
-        Vector3Int StartBoundsInt = Vector3Int.RoundToInt(StartBounds / box.SetScale);
-        Vector3Int EndBoundsInt = Vector3Int.RoundToInt(EndBounds / box.SetScale);
-
         // When carving at a border
         // Carve different boxes on all affected chunks 
         // Update affected Chunks in correct order
 
-
-
+        Debug.Log("Carving Box "+StartBoundsInt+" to "+EndBoundsInt);
 
         int changes = 0;
-        bool updateMe = false;
         for (int i = StartBoundsInt.x; i <= EndBoundsInt.x; i++)
         {
             for (int j = StartBoundsInt.y; j <= EndBoundsInt.y; j++)
             {
                 for (int k = StartBoundsInt.z; k <= EndBoundsInt.z; k++)
                 {
-                        
-                    if ((i <= 0 || j <= 0 || k <= 0) && i<=GridSize  && j<=GridSize  && k<=GridSize )
-                    {
-                        //Debug.Log("Carving ["+i+","+j + "," + k+"]");
-                        //Debug.Log("Carving Bounds " + StartBounds + "," + EndBounds + " " + StartBoundsInt + " , " + EndBoundsInt);
-                        updateMe = true;
-                        if (i == 0)
-                        {                            
-                            if (j == 0)
-                            {
-                                if (k == 0)
-                                    ChunkGridSpawner.SetPixelAt(GridIndex + new Vector3Int(-1, -1, -1), new Vector3Int(i, j, k), 0);
-                                else
-                                    ChunkGridSpawner.SetPixelAt(GridIndex + new Vector3Int(-1, -1, 0), new Vector3Int(i, j, k), 0);
-                            }else if(k == 0)
-                                ChunkGridSpawner.SetPixelAt(GridIndex + new Vector3Int(-1, 0, -1), new Vector3Int(i, j, k), 0);
-                            else
-                            {
-                                Debug.Log("Setting Pixel at "+ (GridIndex + new Vector3Int(-1, 0, 0))+" pixel:"+ new Vector3Int(i, j, k));
-                                ChunkGridSpawner.SetPixelAt(GridIndex + new Vector3Int(-1, 0, 0), new Vector3Int(i, j, k), 0);
-                            }
-                        }
-                        else if (j==0)
-                        {
-                            if (k==0)                                
-                                ChunkGridSpawner.SetPixelAt(GridIndex + new Vector3Int(0, -1, -1), new Vector3Int(i, j, k), 0);
-                            else
-                                ChunkGridSpawner.SetPixelAt(GridIndex + new Vector3Int(0, -1, 0), new Vector3Int(i, j, k), 0);
-                        }
-                        else if (k==0)
-                        {
-                            Debug.Log("ONLY K");
-                            ChunkGridSpawner.SetPixelAt(GridIndex + new Vector3Int(0, 0, -1), new Vector3Int(i, j, k), 0);
-                        }
-                    }
-
                     // Used to still set the 0 values
-                    if (i < 0 || i >= grid.Length || j < 0 || j >= grid[i].Length || k < 0 || k >= grid[i][j].Length) continue;
+                    if (i < 0 || i >= grid.Length || j < 0 || j >= grid[i].Length || k < 0 || k >= grid[i][j].Length)
+                    {
+                        //Debug.LogWarning("Carving outside Chunk, should never happen");
+                        continue;
+                    }
                     
                     //if (i <= 0 || i >= grid.Length || j <= 0 || j >= grid[i].Length || k <= 0 || k >= grid[i][j].Length) continue;
 
@@ -332,33 +324,6 @@ public class Chunk : MonoBehaviour
                 }
             }
         }
-
-        // Messy way to notify all neighbors to update
-        if (EndBoundsInt.x >= GridSize)
-        {
-            ChunkGridSpawner.Notify(GridIndex + new Vector3Int(1,0,0));
-            if (EndBoundsInt.y >= GridSize)
-            {
-                ChunkGridSpawner.Notify(GridIndex + new Vector3Int(1, 1, 0));
-                if (EndBoundsInt.z >= GridSize)
-                    ChunkGridSpawner.Notify(GridIndex + new Vector3Int(1, 1, 1));
-            }
-            if(EndBoundsInt.z >= GridSize)
-                ChunkGridSpawner.Notify(GridIndex + new Vector3Int(1, 0, 1));
-        }
-        if (EndBoundsInt.y >= GridSize)
-        {
-            ChunkGridSpawner.Notify(GridIndex + new Vector3Int(0,1,0));
-            if (EndBoundsInt.z >= GridSize)
-                ChunkGridSpawner.Notify(GridIndex + new Vector3Int(0, 1, 1));
-        }
-        if (EndBoundsInt.z >= GridSize)
-            ChunkGridSpawner.Notify(GridIndex + new Vector3Int(0,0,1));
-
-        if (updateMe)
-            UpdateFromDependingNeighbors();
-
-
 
         return changes;
     }

@@ -5,6 +5,8 @@ public class CarvingBox : MonoBehaviour
 {
     private const float DestructTime = 0.5f;
     [SerializeField] BoxCollider box;
+    [SerializeField] GameObject gridPointGroundPrefab;
+    [SerializeField] GameObject gridPointAirPrefab;
 
     public Vector3 StartBounds { get; private set; }
     public Vector3 EndBounds { get; private set; }
@@ -16,53 +18,20 @@ public class CarvingBox : MonoBehaviour
         AlignMe();
     }
 
-    [SerializeField] GameObject gridPointGroundPrefab;
-    [SerializeField] GameObject gridPointAirPrefab;
     private void AlignMe()
     {
-        Debug.Log("Align Box");
-        Debug.Log("Parent is "+transform.parent.name);        
+        // Define Scale
+        SetScale = transform.parent.GetComponent<Chunk>()?.GridScaling ?? 1f;
 
-        float scaleBy = transform.parent?.GetComponent<Chunk>()?.GridScaling ?? 1f;
+        // Scale Collider
+        box.transform.localScale = Vector3.one * SetScale;
 
-        SetScale = scaleBy;
-
-        //Debug.Log("Parent scale is "+scaleBy);
-
-        box.transform.localScale = Vector3.one * scaleBy;
-
-        Vector3 startBounds = box.bounds.min - transform.position;
-        Vector3 endBounds = box.bounds.max - transform.position;
-        /*
-        // Visualize the bounding box by placing small objects at corners
-        GameObject gridPoint = Instantiate(gridPointGroundPrefab, transform);
-        gridPoint.transform.position = startBounds;
-        GameObject gridPoint2 = Instantiate(gridPointGroundPrefab, transform);
-        gridPoint2.transform.position = endBounds;
-        */
-
-        // Align center to middle of a tile
-        transform.position = new Vector3(Mathf.RoundToInt(transform.position.x/scaleBy)*scaleBy, Mathf.RoundToInt(transform.position.y / scaleBy) * scaleBy, Mathf.RoundToInt(transform.position.z / scaleBy) * scaleBy);
-        //Debug.Log("Box is aligned to position: " + box.transform.position);
-
-
+        // Align center to a grid point
+        transform.position = new Vector3(Mathf.RoundToInt(transform.position.x/ SetScale) * SetScale, Mathf.RoundToInt(transform.position.y / SetScale) * SetScale, Mathf.RoundToInt(transform.position.z / SetScale) * SetScale);
 
         // Set Properties
         StartBounds = box.bounds.min;
-        EndBounds = box.bounds.max;
-        
-        //Debug.LogError("PLaced Box");
-
-        /*
-        Debug.Log("Box is aligned to position: " + box.transform.position);
-
-        // Visualize the bounding box by placing small objects at corners
-        GameObject gridPoint3 = Instantiate(gridPointAirPrefab, transform);
-        gridPoint3.transform.position = startBounds;
-        GameObject gridPoint4 = Instantiate(gridPointAirPrefab, transform);
-        gridPoint4.transform.position = endBounds;
-        */
-
+        EndBounds = box.bounds.max;        
     }
 
     private IEnumerator DelayedDestruction()

@@ -19,8 +19,9 @@ May 2024
 		* Chunks now integrate and take affect from each other as a greater mass -
 6/5		* Refactoring of code
 		* Chunks starts to link together correctly -
-
-		* Make hitting 0 side of a cunk take away from the previous chunk currently limited since chunks get their 0 border value from previous chunk
+7/5		* Chunks are now all affected by a caeve independently
+		* All blocks that has pixels taken away update themself-
+				
 
 		* Make linked chunks update more efficient
 
