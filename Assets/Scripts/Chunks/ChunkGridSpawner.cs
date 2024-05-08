@@ -92,6 +92,7 @@ public class ChunkGridSpawner : MonoBehaviour
         }
     }
 
+    //Remove ???
     public static void Notify(Vector3Int notify)
     {
         if (notify.x < 0 || notify.y < 0 || notify.z < 0 || notify.x >= grid.Length || notify.y >= grid[0].Length || notify.z >= grid[0][0].Length)

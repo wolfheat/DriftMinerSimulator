@@ -36,6 +36,7 @@ public class Chunk : MonoBehaviour
     Vector3Int[] cubes;
     List<Triangle> triangles = new List<Triangle>();
     Vector3[] vertices;
+    Vector3[] normals;
     Vector2[] uv;
 
     int[][][] grid;
@@ -144,6 +145,7 @@ public class Chunk : MonoBehaviour
         int amtVertices = triangles.Count * 3;
 
         vertices = new Vector3[amtVertices];
+        normals = new Vector3[amtVertices];
         uv = new Vector2[amtVertices];
         tris = new int[amtVertices];
 
@@ -179,6 +181,7 @@ public class Chunk : MonoBehaviour
             {
                 tris[v] = v;
                 uv[v] = t.GetTriUVMapping(UVdirection, i);
+                normals[v] = normal;
                 vertices[v++] = i == 0 ? t.triA : (i == 1 ? t.triB : t.triC);
             }
         }
@@ -200,6 +203,7 @@ public class Chunk : MonoBehaviour
         ClearMesh();
         mesh.vertices = vertices;
         mesh.triangles = tris;
+        mesh.normals = normals;
         mesh.uv = uv;
         meshCollider.sharedMesh = mesh;
     }
@@ -256,6 +260,8 @@ public class Chunk : MonoBehaviour
         }
     }
 
+
+    //Remove ???
     public void UpdateFromDependingNeighbors()
     {
         // Update all neighbor points

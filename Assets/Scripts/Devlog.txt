@@ -21,8 +21,14 @@ May 2024
 		* Chunks starts to link together correctly -
 7/5		* Chunks are now all affected by a caeve independently
 		* All blocks that has pixels taken away update themself-
-		* SandBox created, Non grid tiles counts as solid		
-		
+		* SandBox created, Non grid tiles counts as solid -		
+		* Added Torch
+		* Changed light settings
+8/5		* Torches can be placed
+		* Added normals to chunk meshes so light interacts correctly with them
+		* Added Noise to light on torches to resemble flickering -
+
+
 
 		* Make linked chunks update more efficient
 		* Make player not rotate when bumbing into walls
