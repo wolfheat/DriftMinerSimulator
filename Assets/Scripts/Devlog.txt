@@ -28,7 +28,8 @@ May 2024
 		* Added normals to chunk meshes so light interacts correctly with them
 		* Added Noise to light on torches to resemble flickering -
 
-
+		* Light flickers if to many lights or to close lights, disable lights when to far from player?
+		* some light get through meshes down to bottom of chunk and shows borders of vertices
 
 		* Make linked chunks update more efficient
 		* Make player not rotate when bumbing into walls
