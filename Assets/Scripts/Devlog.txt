@@ -27,9 +27,31 @@ May 2024
 8/5		* Torches can be placed
 		* Added normals to chunk meshes so light interacts correctly with them
 		* Added Noise to light on torches to resemble flickering -
+		* Added skybox-
 
 		* Light flickers if to many lights or to close lights, disable lights when to far from player?
 		* some light get through meshes down to bottom of chunk and shows borders of vertices
+
+		// VISION
+
+		* Make forest that regrows and can be harvested for logs
+		* Make player able to dig chunks/stones from the underground
+		* Make player able to add logging into the driftmine
+
+		Step 1 - make the logging placements align to grid and placable
+				 make logging have structural integrity so it holds up dig
+				 if roof collapses it fills the corridor and needs to be re-mined
+				 have indicator for how robust the roof is
+				 have a percent chance of the roof collapsing
+				 if roof collapses on top of player, he loses some progress gold etc to incite him not to dig in unsafe tunnels/keep tunnels logged
+		? If adjecent chunk does not have support or its top is free, player can't dig without collapse?
+
+		Step 2 - Have town where player can purchase tools to dig with and upgrade tools and sell findings
+
+
+
+
+
 
 		* Make linked chunks update more efficient
 		* Make player not rotate when bumbing into walls
