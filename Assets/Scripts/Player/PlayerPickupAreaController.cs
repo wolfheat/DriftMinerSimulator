@@ -13,7 +13,8 @@ public class PlayerPickupAreaController : MonoBehaviour
     [SerializeField] LayerMask interactablesMask;
 
     [SerializeField] GameObject carryPosition;
-    [SerializeField] Log carrying;
+    [SerializeField] GameObject toolPosition;
+    [SerializeField] Carryable carrying;
 
 
     public static PlayerPickupAreaController Instance { get; private set; }
@@ -155,15 +156,27 @@ public class PlayerPickupAreaController : MonoBehaviour
        
     }
 
-    internal bool Carry(Log log)
+    internal bool Carry(Carryable carryable)
     {
         if (carrying != null) return false;
 
-        Debug.Log("Start Carrying Log");
-        carrying = log;
-        carrying.transform.parent = carryPosition.transform;
-        carrying.transform.position = carryPosition.transform.position;
-        carrying.transform.rotation = carryPosition.transform.rotation;
+        Debug.Log("Start Carrying");
+        carrying = carryable;
+
+        if(carryable is Tool)
+        {
+            Debug.Log("This is a tool");
+            carrying.transform.parent = toolPosition.transform;
+        }
+        else
+        {
+            carrying.transform.parent = carryPosition.transform;
+        }
+
+        //carrying.transform.position = carryPosition.transform.position;
+        carrying.transform.localPosition = Vector3.zero;
+        //carrying.transform.rotation = carryPosition.transform.rotation;
+        carrying.transform.localRotation = Quaternion.identity;
 
         return true;
     }

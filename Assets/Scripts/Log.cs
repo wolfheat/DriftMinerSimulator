@@ -1,10 +1,8 @@
 ﻿using System;
 using UnityEngine;
 
-public class Log : MonoBehaviour, Interactable
+public class Log : Carryable, Interactable
 {
-    [SerializeField] CapsuleCollider capsuleCollider;
-    [SerializeField] Rigidbody rb;
 
     public void Interract()
     {
@@ -20,18 +18,4 @@ public class Log : MonoBehaviour, Interactable
 
     }
 
-    public void Drop()
-    {
-        EnablePhysics();
-    }
-    private void EnablePhysics()
-    {
-        rb.isKinematic = false;
-        capsuleCollider.enabled = true;
-    }
-    private void DisablePhysics()
-    {
-        rb.isKinematic = true;
-        capsuleCollider.enabled = false;
-    }
 }

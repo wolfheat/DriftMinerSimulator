@@ -1,13 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public interface Interactable
-{
-    public void Interract();
-}
-
-public class Tree : MonoBehaviour, Interactable
+public class Tree : Carryable, Interactable
 {
     public void Interract()
     {

@@ -264,5 +264,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a861df6762364c4f98f2e62067e50d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  capsuleCollider: {fileID: 5566464896670686595}
+  col: {fileID: 5566464896670686595}
   rb: {fileID: 6170966894696033067}
