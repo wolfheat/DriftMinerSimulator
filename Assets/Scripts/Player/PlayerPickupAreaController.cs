@@ -48,7 +48,7 @@ public class PlayerPickupAreaController : MonoBehaviour
         Inputs.Instance.Controls.Player.Click.started -= Click;
     }
 
-    private void RightClick(InputAction.CallbackContext context) => DetermineClickPoint();
+    private void RightClick(InputAction.CallbackContext context) => RightClickActionAtPoint();
     private void Click(InputAction.CallbackContext context) => Interact();
 
     bool allowAction = true;
@@ -64,7 +64,7 @@ public class PlayerPickupAreaController : MonoBehaviour
         }
         if (Inputs.Instance.Controls.Player.RClick.ReadValue<float>() != 0f)
         {
-            DetermineClickPoint();
+            RightClickActionAtPoint();
         }
     }
 
@@ -90,12 +90,32 @@ public class PlayerPickupAreaController : MonoBehaviour
             allowAction = false;
             allowTimer = AllowTime;
 
-            interactable.Interract();
+
+            if(carrying != null)
+            {
+                if(carrying is Chainsaw && interactable is Log)
+                {
+                    Debug.Log("Cut the Log into pieces");
+                    Log log = interactable as Log;
+                    log.Cut();
+                }else if(carrying is Chainsaw && interactable is ShortLog)
+                {
+                    Debug.Log("Cut the ShortLog into pieces");
+                    ShortLog log = interactable as ShortLog;
+                    log.Cut();
+                }else if(carrying is Chainsaw && interactable is Post)
+                {
+                    Debug.Log("Cut the Post into pieces");
+                    Post log = interactable as Post;
+                    log.Cut();
+                }
+            }else
+                interactable.Interract();
         }
             
     }
     
-    private void DetermineClickPoint()
+    private void RightClickActionAtPoint()
     {
 
         if (!allowAction) return;

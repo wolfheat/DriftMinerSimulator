@@ -30,7 +30,9 @@ May 2024
 		* Added skybox-
 10/5	* Added baseclass Carryable
 		* Added interfaces
-		* Added chainsaw, can be picked up and dropped like logs
+		* Added chainsaw, can be picked up and dropped like logs -
+		* Added smaller Logs, player can cut up logs into 3 smaller ones
+		* Added Posts and Lagging that are further cuts from the SmallLogs
 
 
 		* Light flickers if to many lights or to close lights, disable lights when to far from player?

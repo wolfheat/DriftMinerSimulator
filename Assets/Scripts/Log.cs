@@ -1,9 +1,8 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Log : Carryable, Interactable
 {
-
+    [SerializeField] GameObject[] cutPoints;
     public void Interract()
     {
         Debug.Log("Interract with Log");
@@ -16,6 +15,16 @@ public class Log : Carryable, Interactable
         }else
             Debug.Log("Can Not pick Up log");
 
+    }
+
+    public void Cut()
+    {
+        Debug.Log("Cutting Log");
+        foreach (GameObject pos in cutPoints)
+        {
+            ItemSpawner.Instance.CreateItemAt(ItemType.ShortLog, pos.transform);
+        }
+        Destroy(gameObject);
     }
 
 }

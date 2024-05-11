@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public enum ItemType { Wood};
+public enum ItemType { Wood, ShortLog, Log, Post, Lagging };
 
 public class ItemSpawner : MonoBehaviour
 {
     [SerializeField] GameObject holder;
 
-    [SerializeField] GameObject woodPrefab;
+    [SerializeField] GameObject logPrefab;
+    [SerializeField] GameObject shortLogPrefab;
+    [SerializeField] GameObject postPrefab;
+    [SerializeField] GameObject laggingPrefab;
 
     public static ItemSpawner Instance { get; private set; }
 
@@ -24,9 +27,27 @@ public class ItemSpawner : MonoBehaviour
     }
 
 
-    public void CreateItemAt(ItemType type, Vector3 pos)
+    public void CreateItemAt(ItemType type, Transform pos)
     {
         Debug.Log("Creating "+type+" at position "+pos);
-        Instantiate(woodPrefab,pos+Vector3.up*5f,Quaternion.identity,holder.transform);
+        switch (type)
+        {
+            case ItemType.Wood:
+                break;
+            case ItemType.ShortLog:
+                Instantiate(shortLogPrefab, pos.position, pos.rotation, holder.transform);
+                break;
+            case ItemType.Log:
+                Instantiate(logPrefab, pos.position + Vector3.up * 5f, pos.rotation, holder.transform);
+                break;
+            case ItemType.Post:
+                Instantiate(postPrefab, pos.position, pos.rotation, holder.transform);
+                break;
+            case ItemType.Lagging:
+                Instantiate(laggingPrefab, pos.position, pos.rotation, holder.transform);
+                break;
+            default:
+                break;
+        }
     }
 }
