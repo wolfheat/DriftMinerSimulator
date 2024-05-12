@@ -78,10 +78,63 @@ public class PlayerPickupAreaController : MonoBehaviour
         {
             RightClickActionAtPoint();
         }
+        GhostUpdate();
     }
 
     private void PlaceTorchAt(Vector3 pos) => Instantiate(torchPrefab, pos, Quaternion.identity, itemsParent.transform);
 
+
+    private void GhostUpdate()
+    {
+        if (carrying == null) return;
+
+        if (Physics.Raycast(tilt.transform.position, tilt.transform.forward, out RaycastHit hit, PlayerStats.PlayerReach, interactablesMask))
+        {
+            Interactable interactable = hit.collider.GetComponent<Interactable>();
+
+            if (carrying is Post && interactable is Post)
+            {
+                if (!((Post)interactable).Placed)
+                {
+                    Debug.Log("Target Post is not placed");
+                    return;
+                }
+                
+                
+                Post stationary = (Post)interactable;
+
+                Transform placePoint = stationary.GetConnectpoint(hit.point);
+                // if this gameobject has children toggle through them when scrolling
+                ConnectPoints[] spots = placePoint.GetComponentsInChildren<ConnectPoints>();
+
+                // Place depending on scroll
+                placePoint = spots[scrollValue % spots.Length].transform;
+
+                // Place acording to best direction
+                Vector3 playerDirection = transform.position - placePoint.position;
+
+                float dot = -1;
+
+                foreach (var spot in spots)
+                {
+                    float newDot = Vector3.Dot(playerDirection, spot.transform.up);
+                    if (newDot > dot)
+                    {
+                        dot = newDot;
+                        placePoint = spot.transform;
+                    }
+                }
+
+                ghostpost.transform.position = placePoint.position + 1.5f * placePoint.transform.up;
+                ghostpost.transform.rotation = placePoint.rotation;
+                ghostpost.transform.parent = StructuresHolder.Instance.transform;
+                ghostpost.ActivateVisibleCountDown();
+            }
+        }
+
+    }
+
+    [SerializeField] Post ghostpost;
 
     private void Interact()
     {

@@ -39,6 +39,9 @@ May 2024
 		* Added base for player so he can stand on stuff without slipping off -
 
 
+		* Make ghost placement show where player places held item
+
+
 		* Light flickers if to many lights or to close lights, disable lights when to far from player?
 		* some light get through meshes down to bottom of chunk and shows borders of vertices
 

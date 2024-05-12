@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class Post : Carryable, Interactable
 {
+    [SerializeField] GameObject visibles;
     [SerializeField] GameObject[] cutPoints;
     [SerializeField] Transform[] connectPoints;
     public Transform placement;
@@ -51,4 +53,28 @@ public class Post : Carryable, Interactable
         return bestConnect;
     }
 
+    Coroutine coroutine = null;
+    internal void ActivateVisibleCountDown()
+    {
+        // reset the timer
+        timer = CountTime;
+        if(coroutine == null)
+            coroutine = StartCoroutine(MakeVisibleCO());
+    }
+
+    private float timer = 0;
+    private const float CountTime = 0.2f;
+
+    private IEnumerator MakeVisibleCO()
+    {
+        visibles.SetActive(true);
+        while (timer > 0)
+        {
+            yield return null;
+            timer -= Time.deltaTime;
+        }
+
+        visibles.SetActive(false);
+        coroutine = null;
+    }
 }
