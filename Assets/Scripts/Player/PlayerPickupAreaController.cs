@@ -40,13 +40,25 @@ public class PlayerPickupAreaController : MonoBehaviour
     {
         Inputs.Instance.Controls.Player.RClick.started += RightClick;
         Inputs.Instance.Controls.Player.Click.started += Click;
+        Inputs.Instance.Controls.Player.Scroll.started += Scroll;
     }
 
     private void OnDisable()
     {
         Inputs.Instance.Controls.Player.RClick.started -= RightClick;
         Inputs.Instance.Controls.Player.Click.started -= Click;
+        Inputs.Instance.Controls.Player.Scroll.started -= Scroll;
     }
+
+    private void Scroll(InputAction.CallbackContext context)
+    {
+        Vector2 val = Mouse.current.scroll.ReadValue();
+        Debug.Log("Scroll: " + val);
+        scrollValue += val.y > 0 ? 1 : -1;
+        if(scrollValue<0) scrollValue = 0;
+        UIController.Instance.SetScrollStateInfo(scrollValue);
+    }
+    int scrollValue = 0;
 
     private void RightClick(InputAction.CallbackContext context) => RightClickActionAtPoint();
     private void Click(InputAction.CallbackContext context) => Interact();
@@ -113,7 +125,11 @@ public class PlayerPickupAreaController : MonoBehaviour
                 }
                 else if (carrying is Post && interactable is Post)
                 {
-                    if (!((Post)interactable).Placed) Debug.Log("Target Post is not placed");
+                    if (!((Post)interactable).Placed)
+                    {
+                        Debug.Log("Target Post is not placed");
+                        return;
+                    }
 
                     Debug.Log("Connect the posts");
                     Debug.Log("Place the Post");
@@ -121,6 +137,28 @@ public class PlayerPickupAreaController : MonoBehaviour
 
                     Post stationary = (Post)interactable;
                     Transform placePoint = stationary.GetConnectpoint(hit.point);
+                    // if this gameobject has children toggle through them when scrolling
+                    ConnectPoints[] spots = placePoint.GetComponentsInChildren<ConnectPoints>();
+
+                    // Place depending on scroll
+                    placePoint = spots[scrollValue % spots.Length].transform;   
+
+                    // Place acording to best direction
+                    Vector3 playerDirection = transform.position-placePoint.position;
+
+                    float dot = -1;
+
+                    foreach(var spot in spots)
+                    {
+                        float newDot = Vector3.Dot(playerDirection, spot.transform.up);
+                        if (newDot > dot)
+                        {
+                            dot = newDot;
+                            placePoint = spot.transform;
+                        }
+                    }
+
+
 
                     post.transform.position = placePoint.position + 1.5f * placePoint.transform.up;
                     post.transform.rotation = placePoint.rotation;
@@ -149,7 +187,8 @@ public class PlayerPickupAreaController : MonoBehaviour
                 {
                     Debug.Log("Place the Post");
                     Post post = carrying as Post;
-                    post.transform.position = hit.point-post.placement.localPosition;
+                    // Convert position to closest grid point ALIGN
+                    post.transform.position = Wolfheat.Convert.Align(hit.point-post.placement.localPosition);
                     post.transform.rotation = Quaternion.identity;
                     post.transform.parent = StructuresHolder.Instance.transform;
                     post.Place();

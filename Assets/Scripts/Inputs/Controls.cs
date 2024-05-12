@@ -170,6 +170,15 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Scroll"",
+                    ""type"": ""Value"",
+                    ""id"": ""5800881d-c57a-4d24-906e-a9f53710a479"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -480,6 +489,17 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""action"": ""M"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8b56c72e-cb15-488b-a931-be88458fc4b6"",
+                    ""path"": ""<Mouse>/scroll"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Scroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -504,6 +524,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         m_Player_MouseHeld = m_Player.FindAction("MouseHeld", throwIfNotFound: true);
         m_Player_Esc = m_Player.FindAction("Esc", throwIfNotFound: true);
         m_Player_M = m_Player.FindAction("M", throwIfNotFound: true);
+        m_Player_Scroll = m_Player.FindAction("Scroll", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -581,6 +602,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_MouseHeld;
     private readonly InputAction m_Player_Esc;
     private readonly InputAction m_Player_M;
+    private readonly InputAction m_Player_Scroll;
     public struct PlayerActions
     {
         private @Controls m_Wrapper;
@@ -601,6 +623,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         public InputAction @MouseHeld => m_Wrapper.m_Player_MouseHeld;
         public InputAction @Esc => m_Wrapper.m_Player_Esc;
         public InputAction @M => m_Wrapper.m_Player_M;
+        public InputAction @Scroll => m_Wrapper.m_Player_Scroll;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -658,6 +681,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @M.started += instance.OnM;
             @M.performed += instance.OnM;
             @M.canceled += instance.OnM;
+            @Scroll.started += instance.OnScroll;
+            @Scroll.performed += instance.OnScroll;
+            @Scroll.canceled += instance.OnScroll;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -710,6 +736,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @M.started -= instance.OnM;
             @M.performed -= instance.OnM;
             @M.canceled -= instance.OnM;
+            @Scroll.started -= instance.OnScroll;
+            @Scroll.performed -= instance.OnScroll;
+            @Scroll.canceled -= instance.OnScroll;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -745,5 +774,6 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         void OnMouseHeld(InputAction.CallbackContext context);
         void OnEsc(InputAction.CallbackContext context);
         void OnM(InputAction.CallbackContext context);
+        void OnScroll(InputAction.CallbackContext context);
     }
 }

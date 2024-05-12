@@ -20,6 +20,7 @@ public class UIController : MonoBehaviour
     [SerializeField] GameObject debugHelpText;
     [SerializeField] PauseController pauseScreen;
     [SerializeField] GameObject tempHair;
+    [SerializeField] TextMeshProUGUI scrollState;
 
     //[SerializeField] InventoryUI inventoryUI;
     [SerializeField] ToggleMenu inventoryToggle;
@@ -47,6 +48,8 @@ public class UIController : MonoBehaviour
         Instance = this;
     }
 
+    public void SetScrollStateInfo(int state) => scrollState.text = "Scroll state:"+state;
+    
     public void ShowCursor(bool show = true) => middleCursor?.gameObject.SetActive(show);
 
 

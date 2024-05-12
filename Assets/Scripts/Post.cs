@@ -35,6 +35,7 @@ public class Post : Carryable, Interactable
     {
         Debug.Log("Ref point is "+refPoint);
         Transform bestConnect = transform;
+        
         float bestDistance = 10f;
         foreach (Transform t in connectPoints)
         {
@@ -46,6 +47,7 @@ public class Post : Carryable, Interactable
                 bestDistance = dist;
             }
         }
+        
         return bestConnect;
     }
 

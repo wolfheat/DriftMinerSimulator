@@ -34,6 +34,10 @@ May 2024
 		* Added smaller Logs, player can cut up logs into 3 smaller ones
 		* Added Posts and Lagging that are further cuts from the SmallLogs -
 11/5	* Added placements of the Posts so they can connect
+12/5	* Added placement positions inside ech placement so posts can be rotated
+		* Added DOT calculation to determine which direction to place the posts 
+		* Added base for player so he can stand on stuff without slipping off -
+
 
 		* Light flickers if to many lights or to close lights, disable lights when to far from player?
 		* some light get through meshes down to bottom of chunk and shows borders of vertices
