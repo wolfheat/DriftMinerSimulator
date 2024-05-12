@@ -1,5 +1,4 @@
 using UnityEngine;
-
 public class ItemsHolder : MonoBehaviour
 {
 	public static ItemsHolder Instance { get; private set; }

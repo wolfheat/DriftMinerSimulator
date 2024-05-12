@@ -81,7 +81,7 @@ public class PlayerPickupAreaController : MonoBehaviour
         {
             Interactable interactable = hit.collider.GetComponent<Interactable>();
 
-            if(interactable == null)
+            if (interactable == null)
             {
                 Debug.LogWarning("This hit does not contain a GridVisualizer");
                 return;
@@ -91,37 +91,91 @@ public class PlayerPickupAreaController : MonoBehaviour
             allowTimer = AllowTime;
 
 
-            if(carrying != null)
+            if (carrying != null)
             {
-                if(carrying is Chainsaw && interactable is Log)
+                if (carrying is Chainsaw && interactable is Log)
                 {
                     Debug.Log("Cut the Log into pieces");
                     Log log = interactable as Log;
                     log.Cut();
-                }else if(carrying is Chainsaw && interactable is ShortLog)
+                }
+                else if (carrying is Chainsaw && interactable is ShortLog)
                 {
                     Debug.Log("Cut the ShortLog into pieces");
                     ShortLog log = interactable as ShortLog;
                     log.Cut();
-                }else if(carrying is Chainsaw && interactable is Post)
+                }
+                else if (carrying is Chainsaw && interactable is Post)
                 {
                     Debug.Log("Cut the Post into pieces");
                     Post log = interactable as Post;
                     log.Cut();
                 }
-            }else
+                else if (carrying is Post && interactable is Post)
+                {
+                    if (!((Post)interactable).Placed) Debug.Log("Target Post is not placed");
+
+                    Debug.Log("Connect the posts");
+                    Debug.Log("Place the Post");
+                    Post post = carrying as Post;
+
+                    Post stationary = (Post)interactable;
+                    Transform placePoint = stationary.GetConnectpoint(hit.point);
+
+                    post.transform.position = placePoint.position + 1.5f * placePoint.transform.up;
+                    post.transform.rotation = placePoint.rotation;
+                    post.transform.parent = StructuresHolder.Instance.transform;
+                    post.Place();
+                    carrying = null;
+                }
+
+            }
+            else
                 interactable.Interract();
+        }// Raycast forward from camera
+        else if (Physics.Raycast(tilt.transform.position, tilt.transform.forward, out hit, PlayerStats.PlayerReach, mask))
+        {
+            Chunk hitChunk = hit.collider.GetComponent<Chunk>();
+
+            if (hitChunk == null)
+            {
+                Debug.LogWarning("This hit does not contain a GridVisualizer");
+                return;
+            }
+                        
+            if (carrying != null)
+            {
+                if (carrying is Post)
+                {
+                    Debug.Log("Place the Post");
+                    Post post = carrying as Post;
+                    post.transform.position = hit.point-post.placement.localPosition;
+                    post.transform.rotation = Quaternion.identity;
+                    post.transform.parent = StructuresHolder.Instance.transform;
+                    post.Place();
+                    carrying = null;
+                }
+
+            }
         }
-            
     }
-    
     private void RightClickActionAtPoint()
     {
 
         if (!allowAction) return;
 
         // Raycast forward from camera
-        if (Physics.Raycast(tilt.transform.position, tilt.transform.forward, out RaycastHit hit, PlayerStats.PlayerReach, mask))
+        
+        if (carrying != null){
+                Debug.Log("Carrying a Log drop it");
+                carrying.transform.parent = ItemsHolder.Instance.transform;
+                carrying.Drop();
+                carrying = null;
+
+            allowAction = false;
+            allowTimer = AllowTime;
+        }
+        else if (Physics.Raycast(tilt.transform.position, tilt.transform.forward, out RaycastHit hit, PlayerStats.PlayerReach, mask))
         {
             Chunk hitChunk = hit.collider.GetComponent<Chunk>();
 
@@ -144,18 +198,7 @@ public class PlayerPickupAreaController : MonoBehaviour
 
             CarveAt(hit.point,hitChunk);
         }
-        else
-        {
-            Debug.Log("Not carving try to drop log if carrying");
-            if(carrying!= null)
-            {
-                Debug.Log("Carrying a Log drop it");
-                carrying.transform.parent = ItemsHolder.Instance.transform;
-                carrying.Drop();
-                carrying = null;
-            }
-
-        }
+        
 
         Debug.DrawLine(tilt.transform.position, tilt.transform.position + tilt.transform.forward * PlayerStats.PlayerReach, Color.cyan, 2f);
 

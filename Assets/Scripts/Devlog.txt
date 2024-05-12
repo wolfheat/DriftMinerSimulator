@@ -32,8 +32,8 @@ May 2024
 		* Added interfaces
 		* Added chainsaw, can be picked up and dropped like logs -
 		* Added smaller Logs, player can cut up logs into 3 smaller ones
-		* Added Posts and Lagging that are further cuts from the SmallLogs
-
+		* Added Posts and Lagging that are further cuts from the SmallLogs -
+11/5	* Added placements of the Posts so they can connect
 
 		* Light flickers if to many lights or to close lights, disable lights when to far from player?
 		* some light get through meshes down to bottom of chunk and shows borders of vertices

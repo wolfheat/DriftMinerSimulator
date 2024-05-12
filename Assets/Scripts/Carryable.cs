@@ -4,6 +4,8 @@ public class Carryable : MonoBehaviour, IDroppable
 {
     [SerializeField] Collider col;
     [SerializeField] Rigidbody rb;
+    public bool Placed { get; private set; }
+
     public void Drop()
     {
         EnablePhysics();
@@ -18,4 +20,10 @@ public class Carryable : MonoBehaviour, IDroppable
         rb.isKinematic = true;
         col.enabled = false;
     }
+    public void Place()
+    {
+        rb.isKinematic = true;
+        col.enabled = true;
+    }
+
 }
