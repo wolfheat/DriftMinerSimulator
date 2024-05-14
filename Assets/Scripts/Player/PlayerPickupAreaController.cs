@@ -148,10 +148,13 @@ public class PlayerPickupAreaController : MonoBehaviour
                     Debug.Log("Target Post is not placed");
                     return;
                 }
-                if (Math.Abs(Vector3.Dot(stationary.transform.forward, Vector3.up)) < 0.1f)
+
+                bool lagging = true;
+                if (Math.Abs(Vector3.Dot(stationary.transform.up, Vector3.up)) > 0.5f)
                 {
                     Debug.Log("Target Post is not horizontal");
-                    return;
+                    //return;
+                    lagging = false;
                 }
 
 
@@ -165,14 +168,23 @@ public class PlayerPickupAreaController : MonoBehaviour
 
                 Vector3 cardinalTowardsPlayer = Wolfheat.Convert.AlignCardinal(transform.position - placePoint.position);
 
-                if(Math.Abs(Vector3.Dot(stationary.transform.forward, cardinalTowardsPlayer)) > 0.5f)
+                if (Math.Abs(Vector3.Dot(stationary.transform.up, cardinalTowardsPlayer)) > 0.2f)
                 {
                     Debug.Log("PLayer is not perpendicular to the post");
                     return;
                 }
-
-                ghostlagging.transform.position = placePoint.position + stationary.Radius * Vector3.up +cardinalTowardsPlayer*1.5f;
-                ghostlagging.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, Vector3.up);
+                if (lagging)
+                {
+                    ghostlagging.transform.position = placePoint.position + stationary.Radius * Vector3.up +cardinalTowardsPlayer*1.5f;
+                    ghostlagging.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, Vector3.up);
+                }
+                else
+                {
+                    Vector3 away = Wolfheat.Convert.Away(transform.position - placePoint.position);
+                    // Place on outside (furthest side) on wall
+                    ghostlagging.transform.position = placePoint.position + stationary.Radius * away + cardinalTowardsPlayer * 1.5f;
+                    ghostlagging.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, away);
+                }
                 ghostlagging.transform.parent = StructuresHolder.Instance.transform;
                 ghostlagging.ActivateVisibleCountDown();
             }
@@ -271,10 +283,13 @@ public class PlayerPickupAreaController : MonoBehaviour
                         Debug.Log("Target Post is not placed");
                         return;
                     }
-                    if (Math.Abs(Vector3.Dot(stationary.transform.forward, Vector3.up)) < 0.1f)
+
+                    bool lagging = true;
+                    if (Math.Abs(Vector3.Dot(stationary.transform.up, Vector3.up)) > 0.5f)
                     {
                         Debug.Log("Target Post is not horizontal");
-                        return;
+                        //return;
+                        lagging = false;
                     }
 
 
@@ -288,7 +303,7 @@ public class PlayerPickupAreaController : MonoBehaviour
 
                     Vector3 cardinalTowardsPlayer = Wolfheat.Convert.AlignCardinal(transform.position - placePoint.position);
 
-                    if (Math.Abs(Vector3.Dot(stationary.transform.forward, cardinalTowardsPlayer)) > 0.5f)
+                    if (Math.Abs(Vector3.Dot(stationary.transform.up, cardinalTowardsPlayer)) > 0.2f)
                     {
                         Debug.Log("PLayer is not perpendicular to the post");
                         return;
@@ -296,8 +311,22 @@ public class PlayerPickupAreaController : MonoBehaviour
 
                     Post post = carrying as Post;
 
-                    carrying.transform.position = placePoint.position + stationary.Radius * Vector3.up + cardinalTowardsPlayer*1.5f;
-                    carrying.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, Vector3.up);
+
+
+                    if (lagging)
+                    {
+                        carrying.transform.position = placePoint.position + stationary.Radius * Vector3.up + cardinalTowardsPlayer * 1.5f;
+                        carrying.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, Vector3.up);
+                    }
+                    else
+                    {
+                        Vector3 away = Wolfheat.Convert.Away(transform.position - placePoint.position);
+                        // Place on outside (furthest side) on wall
+                        carrying.transform.position = placePoint.position + stationary.Radius * away + cardinalTowardsPlayer * 1.5f;
+                        carrying.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, away);
+                    }
+
+
                     carrying.transform.parent = StructuresHolder.Instance.transform;
                     carrying.Place();
                     carrying = null;

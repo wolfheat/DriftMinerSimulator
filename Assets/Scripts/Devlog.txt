@@ -41,10 +41,10 @@ May 2024
 		* Added ghost placement for post
 		* Implemented the new posts placement
 		* Added Laggings and placements for them -
+14/5	* Added possability to place laggings on sides, they face away from player -
 
-
-		* Make laggings placable in sides od corridors?
-
+		
+		
 		* Make not able to cut placed items ?		
 
 		* Light flickers if to many lights or to close lights, disable lights when to far from player?
