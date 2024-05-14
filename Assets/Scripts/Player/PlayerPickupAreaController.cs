@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 public class PlayerPickupAreaController : MonoBehaviour
@@ -90,20 +91,28 @@ public class PlayerPickupAreaController : MonoBehaviour
 
         if (Physics.Raycast(tilt.transform.position, tilt.transform.forward, out RaycastHit hit, PlayerStats.PlayerReach, interactablesMask))
         {
-            Interactable interactable = hit.collider.GetComponent<Interactable>();
+            Interactable interactable = hit.collider.GetComponent<Interactable>() ?? hit.collider.GetComponentInParent<Interactable>();
+            if (interactable == null)
+                return;
 
             if (carrying is Post && interactable is Post)
             {
-                if (!((Post)interactable).Placed)
+                Post stationary = (Post)interactable;
+                if (!stationary.Placed)
                 {
                     Debug.Log("Target Post is not placed");
                     return;
-                }
+                }                
                 
-                
-                Post stationary = (Post)interactable;
 
                 Transform placePoint = stationary.GetConnectpoint(hit.point);
+
+                // Get rotation in best cardinal direction
+
+                Vector3 cardinalTowardsPlayer = Wolfheat.Convert.AlignCardinal(transform.position - placePoint.position);
+
+
+                /* Used for Dot product to pick best direction, changed to cardinal directions
                 // if this gameobject has children toggle through them when scrolling
                 ConnectPoints[] spots = placePoint.GetComponentsInChildren<ConnectPoints>();
 
@@ -125,16 +134,54 @@ public class PlayerPickupAreaController : MonoBehaviour
                     }
                 }
 
-                ghostpost.transform.position = placePoint.position + 1.5f * placePoint.transform.up;
-                ghostpost.transform.rotation = placePoint.rotation;
+                */
+
+                ghostpost.transform.position = placePoint.position - ghostpost.placement.transform.localPosition.z * cardinalTowardsPlayer;
+                ghostpost.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, placePoint.transform.up);
                 ghostpost.transform.parent = StructuresHolder.Instance.transform;
                 ghostpost.ActivateVisibleCountDown();
+            }else if (carrying is Lagging && interactable is Post)
+            {
+                Post stationary = (Post)interactable;
+                if (!stationary.Placed)
+                {
+                    Debug.Log("Target Post is not placed");
+                    return;
+                }
+                if (Math.Abs(Vector3.Dot(stationary.transform.forward, Vector3.up)) < 0.1f)
+                {
+                    Debug.Log("Target Post is not horizontal");
+                    return;
+                }
+
+
+                Transform placePoint = stationary.GetLaggingConnectpoint(hit.point);
+                if(placePoint == null)
+                {
+                    Debug.Log("No Valid place point for lagging on this post");
+                    return;
+                }
+                // Get rotation in best cardinal direction
+
+                Vector3 cardinalTowardsPlayer = Wolfheat.Convert.AlignCardinal(transform.position - placePoint.position);
+
+                if(Math.Abs(Vector3.Dot(stationary.transform.forward, cardinalTowardsPlayer)) > 0.5f)
+                {
+                    Debug.Log("PLayer is not perpendicular to the post");
+                    return;
+                }
+
+                ghostlagging.transform.position = placePoint.position + stationary.Radius * Vector3.up +cardinalTowardsPlayer*1.5f;
+                ghostlagging.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, Vector3.up);
+                ghostlagging.transform.parent = StructuresHolder.Instance.transform;
+                ghostlagging.ActivateVisibleCountDown();
             }
         }
 
     }
 
     [SerializeField] Post ghostpost;
+    [SerializeField] Lagging ghostlagging;
 
     private void Interact()
     {
@@ -144,8 +191,7 @@ public class PlayerPickupAreaController : MonoBehaviour
         // Raycast forward from camera
         if (Physics.Raycast(tilt.transform.position, tilt.transform.forward, out RaycastHit hit, PlayerStats.PlayerReach, interactablesMask))
         {
-            Interactable interactable = hit.collider.GetComponent<Interactable>();
-
+            Interactable interactable = hit.collider.GetComponent<Interactable>() ?? hit.collider.GetComponentInParent<Interactable>();
             if (interactable == null)
             {
                 Debug.LogWarning("This hit does not contain a GridVisualizer");
@@ -211,15 +257,51 @@ public class PlayerPickupAreaController : MonoBehaviour
                         }
                     }
 
-
-
-                    post.transform.position = placePoint.position + 1.5f * placePoint.transform.up;
+                    post.transform.position = placePoint.position - post.placement.transform.localPosition.y * placePoint.transform.up;
                     post.transform.rotation = placePoint.rotation;
                     post.transform.parent = StructuresHolder.Instance.transform;
                     post.Place();
                     carrying = null;
                 }
+                else if (carrying is Lagging && interactable is Post)
+                {
+                    Post stationary = (Post)interactable;
+                    if (!stationary.Placed)
+                    {
+                        Debug.Log("Target Post is not placed");
+                        return;
+                    }
+                    if (Math.Abs(Vector3.Dot(stationary.transform.forward, Vector3.up)) < 0.1f)
+                    {
+                        Debug.Log("Target Post is not horizontal");
+                        return;
+                    }
 
+
+                    Transform placePoint = stationary.GetLaggingConnectpoint(hit.point);
+                    if (placePoint == null)
+                    {
+                        Debug.Log("No Valid place point for lagging on this post");
+                        return;
+                    }
+                    // Get rotation in best cardinal direction
+
+                    Vector3 cardinalTowardsPlayer = Wolfheat.Convert.AlignCardinal(transform.position - placePoint.position);
+
+                    if (Math.Abs(Vector3.Dot(stationary.transform.forward, cardinalTowardsPlayer)) > 0.5f)
+                    {
+                        Debug.Log("PLayer is not perpendicular to the post");
+                        return;
+                    }
+
+                    Post post = carrying as Post;
+
+                    carrying.transform.position = placePoint.position + stationary.Radius * Vector3.up + cardinalTowardsPlayer*1.5f;
+                    carrying.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, Vector3.up);
+                    carrying.transform.parent = StructuresHolder.Instance.transform;
+                    carrying.Place();
+                    carrying = null;
+                }
             }
             else
                 interactable.Interract();

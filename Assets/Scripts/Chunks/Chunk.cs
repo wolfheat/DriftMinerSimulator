@@ -56,6 +56,8 @@ public class Chunk : MonoBehaviour
         // Added this so I can set the Grid Index before creating the mesh
         yield return null;
         yield return null;
+        yield return null;
+        yield return null;
         if (triangles.Count == 0)
             Recalculate();
     }

@@ -37,10 +37,15 @@ May 2024
 12/5	* Added placement positions inside ech placement so posts can be rotated
 		* Added DOT calculation to determine which direction to place the posts 
 		* Added base for player so he can stand on stuff without slipping off -
+13/5	* Changed the Posts to only have a single attach point, making it simplier
+		* Added ghost placement for post
+		* Implemented the new posts placement
+		* Added Laggings and placements for them -
 
 
-		* Make ghost placement show where player places held item
+		* Make laggings placable in sides od corridors?
 
+		* Make not able to cut placed items ?		
 
 		* Light flickers if to many lights or to close lights, disable lights when to far from player?
 		* some light get through meshes down to bottom of chunk and shows borders of vertices

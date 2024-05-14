@@ -2,11 +2,18 @@
 using System.Collections;
 using UnityEngine;
 
-public class Post : Carryable, Interactable
+public interface IGhost
+{
+    public void ActivateVisibleCountDown();
+
+}
+
+public class Post : Carryable, Interactable, IGhost
 {
     [SerializeField] GameObject visibles;
     [SerializeField] GameObject[] cutPoints;
     [SerializeField] Transform[] connectPoints;
+    [SerializeField] Transform[] laggingConnectPoints;
     public Transform placement;
 
     public void Interract()
@@ -33,15 +40,31 @@ public class Post : Carryable, Interactable
         Destroy(gameObject);
     }
     
+    public Transform GetLaggingConnectpoint(Vector3 refPoint)
+    {
+        Transform bestConnect = null;
+        
+        float bestDistance = 10f;
+        foreach (Transform t in laggingConnectPoints)
+        {
+            float dist = Vector3.Distance(refPoint, t.position);
+            if (dist < bestDistance)
+            {
+                bestConnect = t;
+                bestDistance = dist;
+            }
+        }
+        
+        return bestConnect;
+    }
+    
     public Transform GetConnectpoint(Vector3 refPoint)
     {
-        Debug.Log("Ref point is "+refPoint);
         Transform bestConnect = transform;
         
         float bestDistance = 10f;
         foreach (Transform t in connectPoints)
         {
-            Debug.Log("checking point " + t.position);
             float dist = Vector3.Distance(refPoint, t.position);
             if (dist < bestDistance)
             {
@@ -54,7 +77,7 @@ public class Post : Carryable, Interactable
     }
 
     Coroutine coroutine = null;
-    internal void ActivateVisibleCountDown()
+    public void ActivateVisibleCountDown()
     {
         // reset the timer
         timer = CountTime;
@@ -64,6 +87,9 @@ public class Post : Carryable, Interactable
 
     private float timer = 0;
     private const float CountTime = 0.2f;
+    private const float radius = 0.2f;
+
+    public float Radius { get => radius; }
 
     private IEnumerator MakeVisibleCO()
     {
