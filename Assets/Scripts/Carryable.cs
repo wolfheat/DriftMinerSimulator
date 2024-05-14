@@ -5,6 +5,8 @@ public class Carryable : MonoBehaviour, IDroppable
     [SerializeField] Collider col;
     [SerializeField] Rigidbody rb;
     [SerializeField] Collider[] interractColliders;
+    [SerializeField] bool isGhost;
+    public bool IsGhost => isGhost;
     public bool Placed { get; private set; } = false;
 
     public void Drop()

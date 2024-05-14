@@ -42,8 +42,8 @@ May 2024
 		* Implemented the new posts placement
 		* Added Laggings and placements for them -
 14/5	* Added possability to place laggings on sides, they face away from player -
-
-		
+		* Gathered the ghost method and place method in same
+		* Laggings and Posts cant be placed on themself-
 		
 		* Make not able to cut placed items ?		
 

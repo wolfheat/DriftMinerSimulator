@@ -88,116 +88,14 @@ public class PlayerPickupAreaController : MonoBehaviour
     private void GhostUpdate()
     {
         if (carrying == null) return;
-
-        if (Physics.Raycast(tilt.transform.position, tilt.transform.forward, out RaycastHit hit, PlayerStats.PlayerReach, interactablesMask))
-        {
-            Interactable interactable = hit.collider.GetComponent<Interactable>() ?? hit.collider.GetComponentInParent<Interactable>();
-            if (interactable == null)
-                return;
-
-            if (carrying is Post && interactable is Post)
-            {
-                Post stationary = (Post)interactable;
-                if (!stationary.Placed)
-                {
-                    Debug.Log("Target Post is not placed");
-                    return;
-                }                
-                
-
-                Transform placePoint = stationary.GetConnectpoint(hit.point);
-
-                // Get rotation in best cardinal direction
-
-                Vector3 cardinalTowardsPlayer = Wolfheat.Convert.AlignCardinal(transform.position - placePoint.position);
-
-
-                /* Used for Dot product to pick best direction, changed to cardinal directions
-                // if this gameobject has children toggle through them when scrolling
-                ConnectPoints[] spots = placePoint.GetComponentsInChildren<ConnectPoints>();
-
-                // Place depending on scroll
-                placePoint = spots[scrollValue % spots.Length].transform;
-
-                // Place acording to best direction
-                Vector3 playerDirection = transform.position - placePoint.position;
-
-                float dot = -1;
-
-                foreach (var spot in spots)
-                {
-                    float newDot = Vector3.Dot(playerDirection, spot.transform.up);
-                    if (newDot > dot)
-                    {
-                        dot = newDot;
-                        placePoint = spot.transform;
-                    }
-                }
-
-                */
-
-                ghostpost.transform.position = placePoint.position - ghostpost.placement.transform.localPosition.z * cardinalTowardsPlayer;
-                ghostpost.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, placePoint.transform.up);
-                ghostpost.transform.parent = StructuresHolder.Instance.transform;
-                ghostpost.ActivateVisibleCountDown();
-            }else if (carrying is Lagging && interactable is Post)
-            {
-                Post stationary = (Post)interactable;
-                if (!stationary.Placed)
-                {
-                    Debug.Log("Target Post is not placed");
-                    return;
-                }
-
-                bool lagging = true;
-                if (Math.Abs(Vector3.Dot(stationary.transform.up, Vector3.up)) > 0.5f)
-                {
-                    Debug.Log("Target Post is not horizontal");
-                    //return;
-                    lagging = false;
-                }
-
-
-                Transform placePoint = stationary.GetLaggingConnectpoint(hit.point);
-                if(placePoint == null)
-                {
-                    Debug.Log("No Valid place point for lagging on this post");
-                    return;
-                }
-                // Get rotation in best cardinal direction
-
-                Vector3 cardinalTowardsPlayer = Wolfheat.Convert.AlignCardinal(transform.position - placePoint.position);
-
-                if (Math.Abs(Vector3.Dot(stationary.transform.up, cardinalTowardsPlayer)) > 0.2f)
-                {
-                    Debug.Log("PLayer is not perpendicular to the post");
-                    return;
-                }
-                if (lagging)
-                {
-                    ghostlagging.transform.position = placePoint.position + stationary.Radius * Vector3.up +cardinalTowardsPlayer*1.5f;
-                    ghostlagging.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, Vector3.up);
-                }
-                else
-                {
-                    Vector3 away = Wolfheat.Convert.Away(transform.position - placePoint.position);
-                    // Place on outside (furthest side) on wall
-                    ghostlagging.transform.position = placePoint.position + stationary.Radius * away + cardinalTowardsPlayer * 1.5f;
-                    ghostlagging.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, away);
-                }
-                ghostlagging.transform.parent = StructuresHolder.Instance.transform;
-                ghostlagging.ActivateVisibleCountDown();
-            }
-        }
-
+        Interact(true);
     }
 
     [SerializeField] Post ghostpost;
     [SerializeField] Lagging ghostlagging;
 
-    private void Interact()
+    private void Interact(bool useGhost=false)
     {
-
         if (!allowAction) return;
 
         // Raycast forward from camera
@@ -210,25 +108,29 @@ public class PlayerPickupAreaController : MonoBehaviour
                 return;
             }
 
-            allowAction = false;
-            allowTimer = AllowTime;
+            // Timer when placing item
+            if (!useGhost)
+            {
+                allowAction = false;
+                allowTimer = AllowTime;
+            }
 
 
             if (carrying != null)
             {
-                if (carrying is Chainsaw && interactable is Log)
+                if (!useGhost && carrying is Chainsaw && interactable is Log)
                 {
                     Debug.Log("Cut the Log into pieces");
                     Log log = interactable as Log;
                     log.Cut();
                 }
-                else if (carrying is Chainsaw && interactable is ShortLog)
+                else if (!useGhost && carrying is Chainsaw && interactable is ShortLog)
                 {
                     Debug.Log("Cut the ShortLog into pieces");
                     ShortLog log = interactable as ShortLog;
                     log.Cut();
                 }
-                else if (carrying is Chainsaw && interactable is Post)
+                else if (!useGhost && carrying is Chainsaw && interactable is Post)
                 {
                     Debug.Log("Cut the Post into pieces");
                     Post log = interactable as Post;
@@ -236,17 +138,13 @@ public class PlayerPickupAreaController : MonoBehaviour
                 }
                 else if (carrying is Post && interactable is Post)
                 {
-                    if (!((Post)interactable).Placed)
+                    Post stationary = (Post)interactable;
+                    if (!stationary.Placed)
                     {
                         Debug.Log("Target Post is not placed");
                         return;
                     }
 
-                    Debug.Log("Connect the posts");
-                    Debug.Log("Place the Post");
-                    Post post = carrying as Post;
-
-                    Post stationary = (Post)interactable;
                     Transform placePoint = stationary.GetConnectpoint(hit.point);
                     // if this gameobject has children toggle through them when scrolling
                     ConnectPoints[] spots = placePoint.GetComponentsInChildren<ConnectPoints>();
@@ -269,11 +167,52 @@ public class PlayerPickupAreaController : MonoBehaviour
                         }
                     }
 
-                    post.transform.position = placePoint.position - post.placement.transform.localPosition.y * placePoint.transform.up;
-                    post.transform.rotation = placePoint.rotation;
-                    post.transform.parent = StructuresHolder.Instance.transform;
-                    post.Place();
-                    carrying = null;
+                    Carryable activePost = useGhost ? ghostpost : carrying;
+
+
+                    Vector3 newPosition = new();
+                    Quaternion newRotation = new();
+
+
+                    // Show what should be shown at the decided position
+                    if (useGhost)
+                    {
+                        Vector3 cardinalTowardsPlayer = Wolfheat.Convert.AlignCardinal(transform.position - placePoint.position);
+                        newPosition = placePoint.position - ghostpost.placement.transform.localPosition.z * cardinalTowardsPlayer;
+                        newRotation = Quaternion.LookRotation(cardinalTowardsPlayer, placePoint.transform.up);
+                        ghostpost.transform.parent = StructuresHolder.Instance.transform;
+
+                    }
+                    else
+                    {
+                        Post post = carrying as Post;
+                        newPosition = placePoint.position - post.placement.transform.localPosition.y * placePoint.transform.up;
+                        newRotation = placePoint.rotation;
+                        post.transform.parent = StructuresHolder.Instance.transform;
+                    }
+
+                    // If attempting to place on occupied position abort
+                    if (!useGhost && !PositionFree<Post>(newPosition))
+                    {
+                        Debug.Log("Position is not Free");
+                        return;
+                    }
+
+                    activePost.transform.position = newPosition;
+                    activePost.transform.rotation = newRotation;    
+                    activePost.transform.parent = StructuresHolder.Instance.transform;
+
+
+
+                    if (useGhost)
+                        ghostpost.ActivateVisibleCountDown();
+                    else
+                    {
+                        carrying.Place();
+                        carrying = null;
+                        ghostpost.transform.position = Vector3.up * 10f;
+                    }
+
                 }
                 else if (carrying is Lagging && interactable is Post)
                 {
@@ -284,56 +223,82 @@ public class PlayerPickupAreaController : MonoBehaviour
                         return;
                     }
 
-                    bool lagging = true;
+                    bool topSide = true;
                     if (Math.Abs(Vector3.Dot(stationary.transform.up, Vector3.up)) > 0.5f)
                     {
-                        Debug.Log("Target Post is not horizontal");
                         //return;
-                        lagging = false;
+                        topSide = false;
                     }
 
-
+                    // Check for valid placement point in post
                     Transform placePoint = stationary.GetLaggingConnectpoint(hit.point);
                     if (placePoint == null)
                     {
                         Debug.Log("No Valid place point for lagging on this post");
                         return;
                     }
+
+
+
+
                     // Get rotation in best cardinal direction
 
                     Vector3 cardinalTowardsPlayer = Wolfheat.Convert.AlignCardinal(transform.position - placePoint.position);
 
                     if (Math.Abs(Vector3.Dot(stationary.transform.up, cardinalTowardsPlayer)) > 0.2f)
                     {
-                        Debug.Log("PLayer is not perpendicular to the post");
+                        //Debug.Log("PLayer is not perpendicular to the post");
                         return;
                     }
 
-                    Post post = carrying as Post;
+                    Carryable activeLagging = useGhost?ghostlagging:carrying;
 
 
+                    Vector3 newPosition = new();
+                    Quaternion newRotation = new();
 
-                    if (lagging)
+                    // Show what should be shown at the decided position
+                    if (topSide)
                     {
-                        carrying.transform.position = placePoint.position + stationary.Radius * Vector3.up + cardinalTowardsPlayer * 1.5f;
-                        carrying.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, Vector3.up);
+                        newPosition = placePoint.position + stationary.Radius * Vector3.up + cardinalTowardsPlayer * 1.5f;
+                        newRotation = Quaternion.LookRotation(cardinalTowardsPlayer, Vector3.up);
                     }
                     else
                     {
                         Vector3 away = Wolfheat.Convert.Away(transform.position - placePoint.position);
                         // Place on outside (furthest side) on wall
-                        carrying.transform.position = placePoint.position + stationary.Radius * away + cardinalTowardsPlayer * 1.5f;
-                        carrying.transform.rotation = Quaternion.LookRotation(cardinalTowardsPlayer, away);
+                        newPosition = placePoint.position + stationary.Radius * away + cardinalTowardsPlayer * 1.5f;
+                        newRotation = Quaternion.LookRotation(cardinalTowardsPlayer, away);
                     }
 
+                    // If attempting to place on occupied position abort
+                    if (!useGhost && !PositionFree<Lagging>(newPosition))
+                    {
+                        Debug.Log("Position is not Free");
+                        return;
+                    }
 
-                    carrying.transform.parent = StructuresHolder.Instance.transform;
-                    carrying.Place();
-                    carrying = null;
+                    activeLagging.transform.position = newPosition;
+                    activeLagging.transform.rotation = newRotation;
+                    activeLagging.transform.parent = StructuresHolder.Instance.transform;
+
+                    if (useGhost)
+                        ghostlagging.ActivateVisibleCountDown();
+                    else
+                    {                       
+                        carrying.Place();
+                        carrying = null;
+                        ghostlagging.transform.position = Vector3.up*10f;
+                    }
+
                 }
             }
             else
-                interactable.Interract();
+            {
+                // Interacting with object
+                if(!useGhost)
+                    interactable.Interract();
+            }
         }// Raycast forward from camera
         else if (Physics.Raycast(tilt.transform.position, tilt.transform.forward, out hit, PlayerStats.PlayerReach, mask))
         {
@@ -350,18 +315,42 @@ public class PlayerPickupAreaController : MonoBehaviour
                 if (carrying is Post)
                 {
                     Debug.Log("Place the Post");
-                    Post post = carrying as Post;
-                    // Convert position to closest grid point ALIGN
-                    post.transform.position = Wolfheat.Convert.Align(hit.point-post.placement.localPosition);
-                    post.transform.rotation = Quaternion.identity;
-                    post.transform.parent = StructuresHolder.Instance.transform;
-                    post.Place();
-                    carrying = null;
+
+                    if (!useGhost)
+                    {
+                        Post post = carrying as Post;
+                        // Convert position to closest grid point ALIGN
+                        post.transform.position = Wolfheat.Convert.Align(hit.point-post.placement.localPosition);
+                        post.transform.rotation = Quaternion.identity;
+                        post.transform.parent = StructuresHolder.Instance.transform;
+                        post.Place();
+                        carrying = null;
+                    }
                 }
 
             }
         }
     }
+
+    private bool PositionFree<T>(Vector3 pos) where T : Carryable
+    {
+        // Check if posution is allready Occupied 
+        foreach (var item in StructuresHolder.Instance.transform.GetComponentsInChildren<T>())
+        {
+            // Ignore collide with ghosts
+            if (item.IsGhost)
+                continue;
+            if (Vector3.Distance(item.transform.position, pos) < 0.2f)
+            {
+                Debug.Log("Placing Lagging on another lagging, abort", item);
+                return false;
+            }
+
+        }
+        return true;
+
+    }
+
     private void RightClickActionAtPoint()
     {
 

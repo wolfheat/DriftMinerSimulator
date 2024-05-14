@@ -49,4 +49,5 @@ public class Lagging : Carryable, Interactable,IGhost
     }
     private float timer = 0;
     private const float CountTime = 0.2f;
+    
 }
