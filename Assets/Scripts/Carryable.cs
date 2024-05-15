@@ -20,7 +20,7 @@ public class Carryable : MonoBehaviour, IDroppable
         foreach (Collider interactCollider in interractColliders)
             interactCollider.enabled = true;
     }
-    protected void DisablePhysics()
+    public void DisablePhysics()
     {
         rb.isKinematic = true;
         col.enabled = false;

@@ -118,23 +118,27 @@ public class PlayerPickupAreaController : MonoBehaviour
 
             if (carrying != null)
             {
-                if (!useGhost && carrying is Chainsaw && interactable is Log)
-                {
-                    Debug.Log("Cut the Log into pieces");
-                    Log log = interactable as Log;
-                    log.Cut();
-                }
-                else if (!useGhost && carrying is Chainsaw && interactable is ShortLog)
-                {
-                    Debug.Log("Cut the ShortLog into pieces");
-                    ShortLog log = interactable as ShortLog;
-                    log.Cut();
-                }
-                else if (!useGhost && carrying is Chainsaw && interactable is Post)
-                {
-                    Debug.Log("Cut the Post into pieces");
-                    Post log = interactable as Post;
-                    log.Cut();
+                if (carrying is Chainsaw && interactable is Carryable) {
+                    if (((Carryable)interactable).Placed || useGhost)
+                        return;
+                    if (interactable is Log)
+                    {
+                        Debug.Log("Cut the Log into pieces");
+                        Log log = interactable as Log;
+                        log.Cut();
+                    }
+                    else if (interactable is ShortLog)
+                    {
+                        Debug.Log("Cut the ShortLog into pieces");
+                        ShortLog log = interactable as ShortLog;
+                        log.Cut();
+                    }
+                    else if (interactable is Post)
+                    {
+                        Debug.Log("Cut the Post into pieces");
+                        Post log = interactable as Post;
+                        log.Cut();
+                    }
                 }
                 else if (carrying is Post && interactable is Post)
                 {
@@ -312,7 +316,7 @@ public class PlayerPickupAreaController : MonoBehaviour
                         
             if (carrying != null)
             {
-                if (carrying is Post)
+                if (carrying is Post)   
                 {
                     Debug.Log("Place the Post");
 

@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class ChunkGridSpawner : MonoBehaviour
 {
+    private const int GroundLevel = 7;
     [SerializeField] int Size = 10;
     [SerializeField] int Height = 2;
     [SerializeField] Chunk chunkPrefab;
@@ -31,7 +32,13 @@ public class ChunkGridSpawner : MonoBehaviour
         if(chunkID.x<0 || chunkID.y <0 || chunkID.z <0 || chunkID.x >= grid.Length || chunkID.y >= grid[0].Length ||  chunkID.z >= grid[0][0].Length)
         {
             // Return 1 here to have the outside count as Solid or 0 to count as Air
+
+            // return 0 if above groundLevel
+
+            if(chunkID.y>= GroundLevel)
+                return 0;
             return 1;
+
         }
 
         // Inside - move to other side
@@ -85,11 +92,13 @@ public class ChunkGridSpawner : MonoBehaviour
                     pos *= (chunkPrefab.GridSize-1f)/ chunkPrefab.GridSize;
                     bool checker = (i + j + k) % 2 == 0;
                     grid[i][j][k] = Instantiate(checker?chunkPrefab : chunkPrefabB, pos,Quaternion.identity,chunkH.transform);
-                    grid[i][j][k].GridIndex = new Vector3Int(i,j,k);
+                    grid[i][j][k].GridIndex = new Vector3Int(i,j,k);                    
                     //Debug.Log("Setting GridIndex for chunk to "+ grid[i][j][k].GridIndex);
                 }
             }
         }
+        grid[2][GroundLevel][0].DefaultFilled = false;
+        grid[2][GroundLevel][1].DefaultFilled = false;
     }
 
     //Remove ???

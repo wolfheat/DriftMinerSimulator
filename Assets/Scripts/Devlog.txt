@@ -44,7 +44,9 @@ May 2024
 14/5	* Added possability to place laggings on sides, they face away from player -
 		* Gathered the ghost method and place method in same
 		* Laggings and Posts cant be placed on themself-
+15/5	* Raised grid above groundlevel, added start 2 blocks starting as mined-
 		
+
 		* Make not able to cut placed items ?		
 
 		* Light flickers if to many lights or to close lights, disable lights when to far from player?

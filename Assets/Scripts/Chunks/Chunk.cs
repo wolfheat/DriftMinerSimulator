@@ -30,6 +30,8 @@ public class Chunk : MonoBehaviour
     public float ScaleDown => 0.5f * GridScale;
 
     public Vector3Int GridIndex { get; set;}
+    public bool DefaultFilled { get; set; } = true;
+
 
     Mesh mesh;
 
@@ -389,6 +391,8 @@ public class Chunk : MonoBehaviour
                     if (i == 0 || j == 0 || k == 0)
                     {
 
+                        // If the pixel index is on the border (i.e x == dim) then the actual value is read/copied from its neighbor
+
                         // Read from other blocks
                         Vector3Int offset = Vector3Int.zero;
 
@@ -411,9 +415,9 @@ public class Chunk : MonoBehaviour
                         if (k == dim)
                             offset.z = 1;
                         Vector3Int gridIndex = GridIndex + offset;
-                        return ChunkGridSpawner.InsideGrid(gridIndex) ? 1 : 0;
+                        return ChunkGridSpawner.InsideGrid(gridIndex) ? (DefaultFilled?1:0) : ChunkGridSpawner.GetPixelAt(gridIndex, new Vector3Int(i, j, k));
                     }
-                    return 1;
+                    return DefaultFilled?1:0;
 
             }
             return 0;

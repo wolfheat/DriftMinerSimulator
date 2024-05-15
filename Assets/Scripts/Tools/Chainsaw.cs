@@ -8,11 +8,11 @@ public class Chainsaw : Tool, Interactable
 
         if (PlayerPickupAreaController.Instance.Carry(this))
         {
-            Debug.Log("Picking Up Log");
+            Debug.Log("Picking Up Chainsaw");
             DisablePhysics();
         }
         else
-            Debug.Log("Can Not pick Up log");
+            Debug.Log("Can Not pick Up Chainsaw");
 
     }
 }
