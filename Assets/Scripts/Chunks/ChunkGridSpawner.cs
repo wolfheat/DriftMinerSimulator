@@ -110,11 +110,11 @@ public class ChunkGridSpawner : MonoBehaviour
         grid[notify.x][notify.y][notify.z].UpdateFromDependingNeighbors();
     }
 
-    internal static void NotifyCarve(Vector3Int notify, Vector3Int start, Vector3Int end)
+    internal static void NotifyCarve(Vector3Int notify, Vector3Int start, Vector3Int end, int set = 0)
     {
         if (notify.x < 0 || notify.y < 0 || notify.z < 0 || notify.x >= grid.Length || notify.y >= grid[0].Length || notify.z >= grid[0][0].Length)
             return;
-        grid[notify.x][notify.y][notify.z].Carve(start, end);
+        grid[notify.x][notify.y][notify.z].Carve(start, end, set);
     }
 
     internal static void NotifyCarveNeighbors(Vector3Int startBoundsInt, Vector3Int endBoundsInt, Vector3Int gridIndex)

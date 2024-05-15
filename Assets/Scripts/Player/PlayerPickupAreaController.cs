@@ -316,7 +316,20 @@ public class PlayerPickupAreaController : MonoBehaviour
                         
             if (carrying != null)
             {
-                if (carrying is Post)   
+                if (!useGhost && carrying is Shovel)
+                {
+                    if(Inputs.Instance.Controls.Player.Shift.ReadValue<float>() > 0f)
+                    {
+                        Debug.Log("Placing dirt");
+                        CarveAt(hit.point, hitChunk, set: 1);
+                    }
+                    else
+                    {
+                        Debug.Log("Shoveling dirt");
+                        CarveAt(hit.point, hitChunk);
+                    }
+                }
+                else if (carrying is Post)   
                 {
                     Debug.Log("Place the Post");
 
@@ -401,13 +414,13 @@ public class PlayerPickupAreaController : MonoBehaviour
 
     }
 
-    private void CarveAt(Vector3 pos, Chunk chunk)
+    private void CarveAt(Vector3 pos, Chunk chunk, int set = 0)
     {
         // Paint a box here
         CarvingBox box = Instantiate(hitShowPrefab, pos, Quaternion.identity, chunk.transform);
 
         // Request carve
-        chunk.Carve(box);
+        chunk.Carve(box,set);
     }
 
     private void SelectClosest()

@@ -87,17 +87,17 @@ public class Chunk : MonoBehaviour
     private void SetMesh() => mesh = meshFilter.sharedMesh = new Mesh();
 
 
-    public void Carve(Vector3Int start, Vector3Int end)
+    public void Carve(Vector3Int start, Vector3Int end, int set = 0)
     {
         //Debug.Log("Carve pixels "+start+" to "+end);
 
         // Carve out the box
-        if (CarveFromGrid(start,end) == 0)
+        if (CarveFromGrid(start,end,set) == 0)
             return;
         CompleteMesh();
     }
 
-    public void Carve(CarvingBox box)
+    public void Carve(CarvingBox box, int set = 0)
     {
         // Initial Carving process - happens at the Raycasted Chunk
         // - recived the entire bounding box here and it separates into different boxes for different chunks
@@ -118,7 +118,7 @@ public class Chunk : MonoBehaviour
         ChunkGridSpawner.NotifyCarveNeighbors(StartBoundsInt, EndBoundsInt, GridIndex);
 
         // Carve this Chunk
-        Carve(StartBoundsInt, EndBoundsInt);
+        Carve(StartBoundsInt, EndBoundsInt,set);
 
         CompleteMesh();
     }
@@ -299,7 +299,7 @@ public class Chunk : MonoBehaviour
         CompleteMesh();
     }
 
-    private int CarveFromGrid(Vector3Int StartBoundsInt, Vector3Int EndBoundsInt)
+    private int CarveFromGrid(Vector3Int StartBoundsInt, Vector3Int EndBoundsInt, int set = 0)
     {
         // When carving at a border
         // Carve different boxes on all affected chunks 
@@ -320,13 +320,15 @@ public class Chunk : MonoBehaviour
                         //Debug.LogWarning("Carving outside Chunk, should never happen");
                         continue;
                     }
-                    
-                    //if (i <= 0 || i >= grid.Length || j <= 0 || j >= grid[i].Length || k <= 0 || k >= grid[i][j].Length) continue;
 
-                    grid[i][j][k] = 0;
+                    // value is already set?
+                    if (grid[i][j][k] == set)
+                        continue;
+
+                    // Set new value
+                    grid[i][j][k] = set;
 
                     // If hitting 0 side carv from neighbor?
-
                     changes++;
                 }
             }

@@ -45,9 +45,9 @@ May 2024
 		* Gathered the ghost method and place method in same
 		* Laggings and Posts cant be placed on themself-
 15/5	* Raised grid above groundlevel, added start 2 blocks starting as mined-
-		
+		* Shovel can now place soil, but palcement bugged-
 
-		* Make not able to cut placed items ?		
+		* Make shovel even out ground
 
 		* Light flickers if to many lights or to close lights, disable lights when to far from player?
 		* some light get through meshes down to bottom of chunk and shows borders of vertices
