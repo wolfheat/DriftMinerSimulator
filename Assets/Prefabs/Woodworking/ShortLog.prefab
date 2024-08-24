@@ -264,7 +264,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59d3345f557e9e546a7e02ffdae6c5e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  data: {fileID: 11400000, guid: 8da7aa57461091548bfadda00482c4d0, type: 2}
   col: {fileID: 5566464896670686595}
   rb: {fileID: 6170966894696033067}
+  interractColliders: []
+  isGhost: 0
   cutPoints:
   - {fileID: 4313586483347641995}

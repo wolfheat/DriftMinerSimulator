@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class Log : Carryable, Interactable
+public class Log : Carryable, ICutable, Interactable
 {
     [SerializeField] GameObject[] cutPoints;
     public void Interract()

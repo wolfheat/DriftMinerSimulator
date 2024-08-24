@@ -24,7 +24,7 @@ public class CarvingBox : MonoBehaviour
         SetScale = transform.parent.GetComponent<Chunk>()?.GridScaling ?? 1f;
 
         // Scale Collider
-        box.transform.localScale = Vector3.one * SetScale;
+        //box.transform.localScale = Vector3.one * SetScale;
 
         // Align center to a grid point
         transform.position = new Vector3(Mathf.RoundToInt(transform.position.x/ SetScale) * SetScale, Mathf.RoundToInt(transform.position.y / SetScale) * SetScale, Mathf.RoundToInt(transform.position.z / SetScale) * SetScale);
@@ -38,5 +38,6 @@ public class CarvingBox : MonoBehaviour
     {
         yield return new WaitForSeconds(DestructTime);
         Destroy(gameObject);
+        Debug.Log("Carving box removed");
     }
 }

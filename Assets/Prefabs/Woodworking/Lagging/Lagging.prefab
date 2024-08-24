@@ -79,9 +79,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de277a042b0e8dc4182474bcd0b2c28b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  data: {fileID: 11400000, guid: 10f8161dca66e1a4c998e8365dc7aabc, type: 2}
   col: {fileID: 211479680188522656}
   rb: {fileID: 6419277409258494258}
   interractColliders: []
+  isGhost: 0
   visibles: {fileID: 0}
   cutPoints: []
   placement: {fileID: 380264248049633062}

@@ -5,7 +5,7 @@ public class Lagging : Carryable, Interactable,IGhost
 {
     [SerializeField] GameObject visibles;
     [SerializeField] GameObject[] cutPoints;
-    public Transform placement;
+    public Transform Placement { get; set; }
     public void Interract()
     {
         Debug.Log("Interract with Lagging");

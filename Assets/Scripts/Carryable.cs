@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-public class Carryable : MonoBehaviour, IDroppable
-{
-    [SerializeField] Collider col;
+public class Carryable : Item, IDroppable
+    {
+        [SerializeField] Collider col;
     [SerializeField] Rigidbody rb;
     [SerializeField] Collider[] interractColliders;
     [SerializeField] bool isGhost;

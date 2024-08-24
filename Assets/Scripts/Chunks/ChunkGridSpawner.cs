@@ -4,7 +4,7 @@ using UnityEngine;
 public class ChunkGridSpawner : MonoBehaviour
 {
     private const int GroundLevel = 7;
-    [SerializeField] int Size = 10;
+    [SerializeField] int Size = 2;
     [SerializeField] int Height = 2;
     [SerializeField] Chunk chunkPrefab;
     [SerializeField] Chunk chunkPrefabB;
@@ -114,10 +114,10 @@ public class ChunkGridSpawner : MonoBehaviour
     {
         if (notify.x < 0 || notify.y < 0 || notify.z < 0 || notify.x >= grid.Length || notify.y >= grid[0].Length || notify.z >= grid[0][0].Length)
             return;
-        grid[notify.x][notify.y][notify.z].Carve(start, end, set);
+        grid[notify.x][notify.y][notify.z].Carve(start, end, set);  
     }
 
-    internal static void NotifyCarveNeighbors(Vector3Int startBoundsInt, Vector3Int endBoundsInt, Vector3Int gridIndex)
+    internal static void NotifyCarveNeighbors(Vector3Int startBoundsInt, Vector3Int endBoundsInt, Vector3Int gridIndex, int set = 0)
     {
         int GridSize = grid[0][0][0].GridSize;
         // For the active chunk only carve pixels inside chunk
@@ -133,28 +133,28 @@ public class ChunkGridSpawner : MonoBehaviour
             // Same Y and Z different X
             ChunkStartBoundsInt.x = startBoundsInt.x + GridSize;
             ChunkEndBoundsInt.x = GridSize;
-            NotifyCarve(gridIndex + new Vector3Int(-1, 0, 0), ChunkStartBoundsInt, ChunkEndBoundsInt);
+            NotifyCarve(gridIndex + new Vector3Int(-1, 0, 0), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
 
             if (startBoundsInt.y <= 0)
             {
                 // LEFT - DOWN
                 ChunkStartBoundsInt.y = startBoundsInt.y + GridSize;
                 ChunkEndBoundsInt.y = GridSize;
-                NotifyCarve(gridIndex + new Vector3Int(-1, -1, 0), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                NotifyCarve(gridIndex + new Vector3Int(-1, -1, 0), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
 
                 if (startBoundsInt.z <= 0)
                 {
                     // LEFT - DOWN - BACK
                     ChunkStartBoundsInt.z = startBoundsInt.z + GridSize;
                     ChunkEndBoundsInt.z = GridSize;
-                    NotifyCarve(gridIndex + new Vector3Int(-1, -1, -1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                    NotifyCarve(gridIndex + new Vector3Int(-1, -1, -1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
                 }
                 else if (endBoundsInt.z >= GridSize)
                 {
                     // LEFT - DOWN - FORWARD
                     ChunkStartBoundsInt.z = 0;
                     ChunkEndBoundsInt.z = endBoundsInt.z - GridSize;
-                    NotifyCarve(gridIndex + new Vector3Int(-1, -1, 1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                    NotifyCarve(gridIndex + new Vector3Int(-1, -1, 1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
                 }
             }
             else if (endBoundsInt.y >= GridSize)
@@ -162,21 +162,21 @@ public class ChunkGridSpawner : MonoBehaviour
                 // LEFT - UP
                 ChunkStartBoundsInt.y = 0;
                 ChunkEndBoundsInt.y = endBoundsInt.y - GridSize;
-                NotifyCarve(gridIndex + new Vector3Int(-1, 1, 0), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                NotifyCarve(gridIndex + new Vector3Int(-1, 1, 0), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
 
                 if (startBoundsInt.z <= 0)
                 {
                     // LEFT - UP - BACK
                     ChunkStartBoundsInt.z = startBoundsInt.z + GridSize;
                     ChunkEndBoundsInt.z = GridSize;
-                    NotifyCarve(gridIndex + new Vector3Int(-1, 1, -1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                    NotifyCarve(gridIndex + new Vector3Int(-1, 1, -1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
                 }
                 else if (endBoundsInt.z >= GridSize)
                 {
                     // LEFT - UP - FORWARD
                     ChunkStartBoundsInt.z = 0;
                     ChunkEndBoundsInt.z = endBoundsInt.z - GridSize;
-                    NotifyCarve(gridIndex + new Vector3Int(-1, 1, 1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                    NotifyCarve(gridIndex + new Vector3Int(-1, 1, 1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
                 }
             }
 
@@ -190,14 +190,14 @@ public class ChunkGridSpawner : MonoBehaviour
                 // LEFT - BACK
                 ChunkStartBoundsInt.z = startBoundsInt.z + GridSize;
                 ChunkEndBoundsInt.z = GridSize;
-                NotifyCarve(gridIndex + new Vector3Int(-1, 0, -1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                NotifyCarve(gridIndex + new Vector3Int(-1, 0, -1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
             }
             else if (endBoundsInt.z >= GridSize)
             {
                 // LEFT - FORWARD
                 ChunkStartBoundsInt.z = 0;
                 ChunkEndBoundsInt.z = endBoundsInt.z - GridSize;
-                NotifyCarve(gridIndex + new Vector3Int(-1, 0, 1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                NotifyCarve(gridIndex + new Vector3Int(-1, 0, 1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
             }
         }
         else if (endBoundsInt.x >= GridSize)
@@ -208,28 +208,28 @@ public class ChunkGridSpawner : MonoBehaviour
             // Same Y and Z different X
             ChunkStartBoundsInt.x = 0;
             ChunkEndBoundsInt.x = endBoundsInt.x - GridSize;
-            NotifyCarve(gridIndex + new Vector3Int(1, 0, 0), ChunkStartBoundsInt, ChunkEndBoundsInt);
+            NotifyCarve(gridIndex + new Vector3Int(1, 0, 0), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
 
             if (startBoundsInt.y <= 0)
             {
                 // RIGHT - DOWN
                 ChunkStartBoundsInt.y = startBoundsInt.y + GridSize;
                 ChunkEndBoundsInt.y = GridSize;
-                NotifyCarve(gridIndex + new Vector3Int(1, -1, 0), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                NotifyCarve(gridIndex + new Vector3Int(1, -1, 0), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
 
                 if (startBoundsInt.z <= 0)
                 {
                     // RIGHT - DOWN - BACK
                     ChunkStartBoundsInt.z = startBoundsInt.z + GridSize;
                     ChunkEndBoundsInt.z = GridSize;
-                    NotifyCarve(gridIndex + new Vector3Int(1, -1, -1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                    NotifyCarve(gridIndex + new Vector3Int(1, -1, -1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
                 }
                 else if (endBoundsInt.z >= GridSize)
                 {
                     // RIGHT - DOWN - FORWARD
                     ChunkStartBoundsInt.z = 0;
                     ChunkEndBoundsInt.z = endBoundsInt.z - GridSize;
-                    NotifyCarve(gridIndex + new Vector3Int(1, -1, 1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                    NotifyCarve(gridIndex + new Vector3Int(1, -1, 1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
                 }
             }
             else if (endBoundsInt.y >= GridSize)
@@ -237,21 +237,21 @@ public class ChunkGridSpawner : MonoBehaviour
                 // RIGHT - UP
                 ChunkStartBoundsInt.y = 0;
                 ChunkEndBoundsInt.y = endBoundsInt.y - GridSize;
-                NotifyCarve(gridIndex + new Vector3Int(1, 1, 0), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                NotifyCarve(gridIndex + new Vector3Int(1, 1, 0), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
 
                 if (startBoundsInt.z <= 0)
                 {
                     // RIGHT - UP - BACK
                     ChunkStartBoundsInt.z = startBoundsInt.z + GridSize;
                     ChunkEndBoundsInt.z = GridSize;
-                    NotifyCarve(gridIndex + new Vector3Int(1, 1, -1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                    NotifyCarve(gridIndex + new Vector3Int(1, 1, -1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
                 }
                 else if (endBoundsInt.z >= GridSize)
                 {
                     // RIGHT - UP - FORWARD
                     ChunkStartBoundsInt.z = 0;
                     ChunkEndBoundsInt.z = endBoundsInt.z - GridSize;
-                    NotifyCarve(gridIndex + new Vector3Int(1, 1, 1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                    NotifyCarve(gridIndex + new Vector3Int(1, 1, 1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
                 }
             }
 
@@ -265,14 +265,14 @@ public class ChunkGridSpawner : MonoBehaviour
                 // RIGHT - BACK
                 ChunkStartBoundsInt.z = startBoundsInt.z + GridSize;
                 ChunkEndBoundsInt.z = GridSize;
-                NotifyCarve(gridIndex + new Vector3Int(1, 0, -1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                NotifyCarve(gridIndex + new Vector3Int(1, 0, -1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
             }
             else if (endBoundsInt.z >= GridSize)
             {
                 // RIGHT - FORWARD
                 ChunkStartBoundsInt.z = 0;
                 ChunkEndBoundsInt.z = endBoundsInt.z - GridSize;
-                NotifyCarve(gridIndex + new Vector3Int(1, 0, 1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                NotifyCarve(gridIndex + new Vector3Int(1, 0, 1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
             }
         }
 
@@ -285,21 +285,21 @@ public class ChunkGridSpawner : MonoBehaviour
 
             ChunkStartBoundsInt.y = startBoundsInt.y + GridSize;
             ChunkEndBoundsInt.y = GridSize;
-            NotifyCarve(gridIndex + new Vector3Int(0, -1, 0), ChunkStartBoundsInt, ChunkEndBoundsInt);
+            NotifyCarve(gridIndex + new Vector3Int(0, -1, 0), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
 
             if (startBoundsInt.z <= 0)
             {
                 // DOWN - BACK
                 ChunkStartBoundsInt.z = startBoundsInt.z + GridSize;
                 ChunkEndBoundsInt.z = GridSize;
-                NotifyCarve(gridIndex + new Vector3Int(0, -1, -1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                NotifyCarve(gridIndex + new Vector3Int(0, -1, -1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
             }
             else if (endBoundsInt.z >= GridSize)
             {
                 // DOWN - FORWARD
                 ChunkStartBoundsInt.z = 0;
                 ChunkEndBoundsInt.z = endBoundsInt.z - GridSize;
-                NotifyCarve(gridIndex + new Vector3Int(0, -1, 1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                NotifyCarve(gridIndex + new Vector3Int(0, -1, 1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
             }
 
         }
@@ -310,21 +310,21 @@ public class ChunkGridSpawner : MonoBehaviour
             ChunkEndBoundsInt = endBoundsInt;
             ChunkStartBoundsInt.y = 0;
             ChunkEndBoundsInt.y = endBoundsInt.y - GridSize;
-            NotifyCarve(gridIndex + new Vector3Int(0, 1, 0), ChunkStartBoundsInt, ChunkEndBoundsInt);
+            NotifyCarve(gridIndex + new Vector3Int(0, 1, 0), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
 
             if (startBoundsInt.z <= 0)
             {
                 // UP - BACK
                 ChunkStartBoundsInt.z = startBoundsInt.z + GridSize;
                 ChunkEndBoundsInt.z = GridSize;
-                NotifyCarve(gridIndex + new Vector3Int(0, 1, -1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                NotifyCarve(gridIndex + new Vector3Int(0, 1, -1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
             }
             else if (endBoundsInt.z >= GridSize)
             {
                 // UP - FORWARD
                 ChunkStartBoundsInt.z = 0;
                 ChunkEndBoundsInt.z = endBoundsInt.z - GridSize;
-                NotifyCarve(gridIndex + new Vector3Int(0, 1, 1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+                NotifyCarve(gridIndex + new Vector3Int(0, 1, 1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
             }
         }
 
@@ -336,7 +336,7 @@ public class ChunkGridSpawner : MonoBehaviour
 
             ChunkStartBoundsInt.z = startBoundsInt.z + GridSize;
             ChunkEndBoundsInt.z = GridSize;
-            NotifyCarve(gridIndex + new Vector3Int(0, 0, -1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+            NotifyCarve(gridIndex + new Vector3Int(0, 0, -1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
         }
         else if (endBoundsInt.z >= GridSize)
         {
@@ -345,8 +345,15 @@ public class ChunkGridSpawner : MonoBehaviour
             ChunkEndBoundsInt = endBoundsInt;
             ChunkStartBoundsInt.z = 0;
             ChunkEndBoundsInt.z = endBoundsInt.z - GridSize;
-            NotifyCarve(gridIndex + new Vector3Int(0, 0, 1), ChunkStartBoundsInt, ChunkEndBoundsInt);
+            NotifyCarve(gridIndex + new Vector3Int(0, 0, 1), ChunkStartBoundsInt, ChunkEndBoundsInt, set);
         }
 
+    }
+
+    internal static (Vector3Int, Vector3Int) Limits(Vector3Int gridIndex)
+    {
+        Vector3Int lowerLimit = new Vector3Int(gridIndex.x == 0 ? 1 : 0, gridIndex.y == 0 ? 1 : 0, gridIndex.z == 0 ? 1 : 0);
+        Vector3Int upperLimit = new Vector3Int(gridIndex.x == grid.Length-1 ? 1 : 0, gridIndex.y == grid[0].Length-1 ? 1 : 0, gridIndex.z == grid[0][0].Length-1 ? 1 : 0);
+        return (lowerLimit, upperLimit);
     }
 }

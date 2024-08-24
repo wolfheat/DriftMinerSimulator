@@ -46,6 +46,20 @@ May 2024
 		* Laggings and Posts cant be placed on themself-
 15/5	* Raised grid above groundlevel, added start 2 blocks starting as mined-
 		* Shovel can now place soil, but palcement bugged-
+23/5	* Fixed placing dirt over chunks bug
+		* Fixed placing dirt on 0 grid positions bug
+		* Fixed placing dirt on grid size limits bug
+
+23/8	* Made carryables stack due to itemData scriptable object
+		* Carryables are lowered when one is dropped
+		* Also Laggings can be picked.
+
+		* Started refactor of PickUp - still need to fix stuff, Cut of for ghowst and first click
+
+		* Change so any carriable can be picked up remove specific check somehow
+		* Fix up chunk code, wery long atm
+		* Make laggings align correct when carried, they stand up now
+		* Make the shovel able to stick in ground?
 
 		* Make shovel even out ground
 

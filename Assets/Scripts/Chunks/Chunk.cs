@@ -89,10 +89,19 @@ public class Chunk : MonoBehaviour
 
     public void Carve(Vector3Int start, Vector3Int end, int set = 0)
     {
-        //Debug.Log("Carve pixels "+start+" to "+end);
+        Debug.Log("Carve pixels "+start+" to "+end);
+        // Adjust for border region
+    
+        (Vector3Int lowerLimit, Vector3Int upperLimit) = ChunkGridSpawner.Limits(GridIndex);
+
+        Vector3Int ChunkStartBoundsInt = start;
+        ChunkStartBoundsInt.Clamp(lowerLimit, Vector3Int.one * GridSize);
+
+        Vector3Int ChunkEndBoundsInt = end;
+        ChunkEndBoundsInt.Clamp(Vector3Int.zero, Vector3Int.one * GridSize - upperLimit);
 
         // Carve out the box
-        if (CarveFromGrid(start,end,set) == 0)
+        if (CarveFromGrid(ChunkStartBoundsInt, ChunkEndBoundsInt, set) == 0)
             return;
         CompleteMesh();
     }
@@ -109,16 +118,24 @@ public class Chunk : MonoBehaviour
 
         // For the active chunk only carve pixels inside chunk
         Vector3Int ChunkStartBoundsInt = StartBoundsInt;
-        ChunkStartBoundsInt.Clamp(Vector3Int.zero, Vector3Int.one * GridSize);
+
+        (Vector3Int lowerLimit, Vector3Int upperLimit) = ChunkGridSpawner.Limits(GridIndex);
+            
+        Debug.Log("Carving at GridIndex "+GridIndex+" lowerLomit "+lowerLimit+" upperlimit = "+upperLimit);
+
+        ChunkStartBoundsInt.Clamp(lowerLimit, Vector3Int.one * GridSize);
 
         Vector3Int ChunkEndBoundsInt = Vector3Int.RoundToInt(EndBounds / box.SetScale);
-        ChunkEndBoundsInt.Clamp(Vector3Int.zero, Vector3Int.one * GridSize);
+        ChunkEndBoundsInt.Clamp(Vector3Int.zero, Vector3Int.one * GridSize - upperLimit);
+
+        Debug.Log("ChunkStartBoundsInt = " + ChunkStartBoundsInt + "  ChunkEndBoundsInt " + ChunkEndBoundsInt);
+
 
         // Send Carve command to all neighbor Chunks
-        ChunkGridSpawner.NotifyCarveNeighbors(StartBoundsInt, EndBoundsInt, GridIndex);
-
+        ChunkGridSpawner.NotifyCarveNeighbors(StartBoundsInt, EndBoundsInt, GridIndex, set);
+            
         // Carve this Chunk
-        Carve(StartBoundsInt, EndBoundsInt,set);
+        Carve(ChunkStartBoundsInt, ChunkEndBoundsInt, set);
 
         CompleteMesh();
     }

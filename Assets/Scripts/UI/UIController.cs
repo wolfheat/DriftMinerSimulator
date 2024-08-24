@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class UIController : MonoBehaviour
 {
     [SerializeField] GameObject middleCursor;
-
+    [SerializeField] CarryPanel carryPanel;
 
     // OLD
     [SerializeField] TextMeshProUGUI speed;
@@ -68,6 +68,16 @@ public class UIController : MonoBehaviour
         //Inputs.Instance.Controls.Player.Esc.started -= Pause;
     }
 
+    public void UpdateCarryPanel(ItemData data, int amt = 1)
+    {
+        if(data != null)
+            carryPanel.SetData(data,amt);
+    }
+    
+    public void HideCarryPanel()
+    {
+        carryPanel.Hide();
+    }
 
     public void Pause(InputAction.CallbackContext context)
     {

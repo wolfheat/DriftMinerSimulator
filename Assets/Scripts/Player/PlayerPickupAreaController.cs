@@ -1,5 +1,6 @@
 using System;
-using UnityEditor.Experimental.GraphView;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 public class PlayerPickupAreaController : MonoBehaviour
@@ -15,7 +16,7 @@ public class PlayerPickupAreaController : MonoBehaviour
 
     [SerializeField] GameObject carryPosition;
     [SerializeField] GameObject toolPosition;
-    [SerializeField] Carryable carrying;
+    [SerializeField] List<Carryable> carrying = new();
 
 
     public static PlayerPickupAreaController Instance { get; private set; }
@@ -75,6 +76,11 @@ public class PlayerPickupAreaController : MonoBehaviour
             if(allowTimer <= 0)
                 allowAction = true;
         }
+        if (shrink)
+        {
+            ShrinkStack();
+        }
+
         if (Inputs.Instance.Controls.Player.RClick.ReadValue<float>() != 0f)
         {
             RightClickActionAtPoint();
@@ -87,12 +93,13 @@ public class PlayerPickupAreaController : MonoBehaviour
 
     private void GhostUpdate()
     {
-        if (carrying == null) return;
+        if (carrying.Count == 0) return;
         Interact(true);
     }
 
     [SerializeField] Post ghostpost;
     [SerializeField] Lagging ghostlagging;
+    private bool shrink = false;
 
     private void Interact(bool useGhost=false)
     {
@@ -115,110 +122,110 @@ public class PlayerPickupAreaController : MonoBehaviour
                 allowTimer = AllowTime;
             }
 
+            // Change this to be correct
+            if (((Carryable)interactable).Placed || useGhost)
+                return;
 
-            if (carrying != null)
+            if (carrying.Count > 0)
             {
-                if (carrying is Chainsaw && interactable is Carryable) {
-                    if (((Carryable)interactable).Placed || useGhost)
-                        return;
-                    if (interactable is Log)
-                    {
-                        Debug.Log("Cut the Log into pieces");
-                        Log log = interactable as Log;
-                        log.Cut();
-                    }
-                    else if (interactable is ShortLog)
-                    {
-                        Debug.Log("Cut the ShortLog into pieces");
-                        ShortLog log = interactable as ShortLog;
-                        log.Cut();
-                    }
-                    else if (interactable is Post)
-                    {
-                        Debug.Log("Cut the Post into pieces");
-                        Post log = interactable as Post;
-                        log.Cut();
-                    }
-                }
-                else if (carrying is Post && interactable is Post)
+                ICutable cutable = interactable as ICutable;
+                if (cutable != null)
                 {
-                    Post stationary = (Post)interactable;
-                    if (!stationary.Placed)
+                    cutable.Cut();
+                    return;
+                }
+
+                // Check if Picking up the same item that is held
+                if ((interactable is Carryable) && carrying[0].data.name == (interactable as Carryable)?.data.name)
+                {
+                    Debug.Log("Name are equal");
+                    Carryable carryable = interactable as Carryable;
+                    if (!carryable.Placed)
                     {
-                        Debug.Log("Target Post is not placed");
-                        return;
+                        // Try to Pick up another of same type
+                        interactable.Interract();
                     }
+                    return;
+                }
 
-                    Transform placePoint = stationary.GetConnectpoint(hit.point);
-                    // if this gameobject has children toggle through them when scrolling
-                    ConnectPoints[] spots = placePoint.GetComponentsInChildren<ConnectPoints>();
+                // Placing item
 
-                    // Place depending on scroll
-                    placePoint = spots[scrollValue % spots.Length].transform;   
+                Transform placePoint = (interactable as IHAveConnectionPoint).GetConnectpoint(hit.point);
+                // if this gameobject has children toggle through them when scrolling
+                ConnectPoints[] spots = placePoint.GetComponentsInChildren<ConnectPoints>();
 
-                    // Place acording to best direction
-                    Vector3 playerDirection = transform.position-placePoint.position;
+                // Place depending on scroll
+                placePoint = spots[scrollValue % spots.Length].transform;
 
-                    float dot = -1;
+                // Place acording to best direction
+                Vector3 playerDirection = transform.position - placePoint.position;
 
-                    foreach(var spot in spots)
+                float dot = -1;
+
+                foreach (var spot in spots)
+                {
+                    float newDot = Vector3.Dot(playerDirection, spot.transform.up);
+                    if (newDot > dot)
                     {
-                        float newDot = Vector3.Dot(playerDirection, spot.transform.up);
-                        if (newDot > dot)
-                        {
-                            dot = newDot;
-                            placePoint = spot.transform;
-                        }
+                        dot = newDot;
+                        placePoint = spot.transform;
                     }
+                }
 
-                    Carryable activePost = useGhost ? ghostpost : carrying;
-
-
-                    Vector3 newPosition = new();
-                    Quaternion newRotation = new();
+                // ghostpost is specific, make it general
+                Carryable activePost = useGhost ? ghostpost : carrying[0];
 
 
-                    // Show what should be shown at the decided position
-                    if (useGhost)
-                    {
-                        Vector3 cardinalTowardsPlayer = Wolfheat.Convert.AlignCardinal(transform.position - placePoint.position);
-                        newPosition = placePoint.position - ghostpost.placement.transform.localPosition.z * cardinalTowardsPlayer;
-                        newRotation = Quaternion.LookRotation(cardinalTowardsPlayer, placePoint.transform.up);
-                        ghostpost.transform.parent = StructuresHolder.Instance.transform;
-
-                    }
-                    else
-                    {
-                        Post post = carrying as Post;
-                        newPosition = placePoint.position - post.placement.transform.localPosition.y * placePoint.transform.up;
-                        newRotation = placePoint.rotation;
-                        post.transform.parent = StructuresHolder.Instance.transform;
-                    }
-
-                    // If attempting to place on occupied position abort
-                    if (!useGhost && !PositionFree<Post>(newPosition))
-                    {
-                        Debug.Log("Position is not Free");
-                        return;
-                    }
-
-                    activePost.transform.position = newPosition;
-                    activePost.transform.rotation = newRotation;    
-                    activePost.transform.parent = StructuresHolder.Instance.transform;
+                Vector3 newPosition = new();
+                Quaternion newRotation = new();
 
 
-
-                    if (useGhost)
-                        ghostpost.ActivateVisibleCountDown();
-                    else
-                    {
-                        carrying.Place();
-                        carrying = null;
-                        ghostpost.transform.position = Vector3.up * 10f;
-                    }
+                // Show what should be shown at the decided position
+                if (useGhost)
+                {
+                    // Places aligned to other objects
+                    Vector3 cardinalTowardsPlayer = Wolfheat.Convert.AlignCardinal(transform.position - placePoint.position);
+                    newPosition = placePoint.position - ghostpost.Placement.transform.localPosition.z * cardinalTowardsPlayer;
+                    newRotation = Quaternion.LookRotation(cardinalTowardsPlayer, placePoint.transform.up);
+                    ghostpost.transform.parent = StructuresHolder.Instance.transform;
 
                 }
-                else if (carrying is Lagging && interactable is Post)
+                else
+                {
+                    // PLaces unrelated
+                    Post post = carrying[0] as Post;
+                    newPosition = placePoint.position - post.Placement.transform.localPosition.y * placePoint.transform.up;
+                    newRotation = placePoint.rotation;
+                    post.transform.parent = StructuresHolder.Instance.transform;
+                }
+
+                // If attempting to place on occupied position abort
+                if (!useGhost && !PositionFree<Post>(newPosition))
+                {
+                    Debug.Log("Position is not Free");
+                    return;
+                }
+
+                activePost.transform.position = newPosition;
+                activePost.transform.rotation = newRotation;
+                activePost.transform.parent = StructuresHolder.Instance.transform;
+
+
+
+                if (useGhost)
+                    ghostpost.ActivateVisibleCountDown();
+                else
+                {
+                    carrying[0].Place();
+                    carrying.RemoveAt(0);
+
+                    UpdateCarrierUI();
+                    ghostpost.transform.position = Vector3.up * 10f;
+                }
+
+                // END
+
+                if (carrying[0] is Lagging && interactable is Post)
                 {
                     Post stationary = (Post)interactable;
                     if (!stationary.Placed)
@@ -235,7 +242,7 @@ public class PlayerPickupAreaController : MonoBehaviour
                     }
 
                     // Check for valid placement point in post
-                    Transform placePoint = stationary.GetLaggingConnectpoint(hit.point);
+                    placePoint = stationary.GetLaggingConnectpoint(hit.point);
                     if (placePoint == null)
                     {
                         Debug.Log("No Valid place point for lagging on this post");
@@ -255,11 +262,11 @@ public class PlayerPickupAreaController : MonoBehaviour
                         return;
                     }
 
-                    Carryable activeLagging = useGhost?ghostlagging:carrying;
+                    Carryable activeLagging = useGhost ? ghostlagging : carrying[0];
 
 
-                    Vector3 newPosition = new();
-                    Quaternion newRotation = new();
+                    newPosition = new();
+                    newRotation = new();
 
                     // Show what should be shown at the decided position
                     if (topSide)
@@ -289,62 +296,78 @@ public class PlayerPickupAreaController : MonoBehaviour
                     if (useGhost)
                         ghostlagging.ActivateVisibleCountDown();
                     else
-                    {                       
-                        carrying.Place();
-                        carrying = null;
-                        ghostlagging.transform.position = Vector3.up*10f;
+                    {
+                        carrying[0].Place();
+                        carrying.RemoveAt(0);
+                        UpdateCarrierUI();
+                        ghostlagging.transform.position = Vector3.up * 10f;
                     }
 
+                }
+                else if (carrying[0] is Lagging && interactable is Lagging)
+                {
+                    if (!useGhost)
+                    {
+                        Debug.Log("Try to pick up another Target Post");
+                        interactable.Interract();
+                    }
+                    return;
                 }
             }
             else
             {
                 // Interacting with object
-                if(!useGhost)
+                if (!useGhost)
                     interactable.Interract();
             }
-        }// Raycast forward from camera
-        else if (Physics.Raycast(tilt.transform.position, tilt.transform.forward, out hit, PlayerStats.PlayerReach, mask))
-        {
-            Chunk hitChunk = hit.collider.GetComponent<Chunk>();
 
-            if (hitChunk == null)
-            {
-                Debug.LogWarning("This hit does not contain a GridVisualizer");
-                return;
-            }
-                        
-            if (carrying != null)
-            {
-                if (!useGhost && carrying is Shovel)
-                {
-                    if(Inputs.Instance.Controls.Player.Shift.ReadValue<float>() > 0f)
-                    {
-                        Debug.Log("Placing dirt");
-                        CarveAt(hit.point, hitChunk, set: 1);
-                    }
-                    else
-                    {
-                        Debug.Log("Shoveling dirt");
-                        CarveAt(hit.point, hitChunk);
-                    }
-                }
-                else if (carrying is Post)   
-                {
-                    Debug.Log("Place the Post");
 
-                    if (!useGhost)
-                    {
-                        Post post = carrying as Post;
-                        // Convert position to closest grid point ALIGN
-                        post.transform.position = Wolfheat.Convert.Align(hit.point-post.placement.localPosition);
-                        post.transform.rotation = Quaternion.identity;
-                        post.transform.parent = StructuresHolder.Instance.transform;
-                        post.Place();
-                        carrying = null;
-                    }
+            // Interact with soil? 
+
+            // Raycast forward from camera
+            if (Physics.Raycast(tilt.transform.position, tilt.transform.forward, out hit, PlayerStats.PlayerReach, mask))
+            {
+                Chunk hitChunk = hit.collider.GetComponent<Chunk>();
+
+                if (hitChunk == null)
+                {
+                    Debug.LogWarning("This hit does not contain a GridVisualizer");
+                    return;
                 }
 
+                if (carrying.Count > 0)
+                {
+                    if (!useGhost && carrying[0] is Shovel)
+                    {
+                        if (Inputs.Instance.Controls.Player.Shift.ReadValue<float>() > 0f)
+                        {
+                            Debug.Log("Placing dirt");
+                            CarveAt(hit.point, hitChunk, set: 1);
+                        }
+                        else
+                        {
+                            Debug.Log("Shoveling dirt");
+                            CarveAt(hit.point, hitChunk);
+                        }
+                    }
+                    else if (carrying[0] is Post)
+                    {
+                        Debug.Log("Place the Post");
+
+                        if (!useGhost)
+                        {
+                            Post post = carrying[0] as Post;
+                            // Convert position to closest grid point ALIGN
+                            post.transform.position = Wolfheat.Convert.Align(hit.point - post.Placement.localPosition);
+                            post.transform.rotation = Quaternion.identity;
+                            post.transform.parent = StructuresHolder.Instance.transform;
+                            post.Place();
+                            carrying.RemoveAt(0);
+                            UpdateCarrierUI();
+                        }
+                    }
+
+                }
             }
         }
     }
@@ -375,14 +398,9 @@ public class PlayerPickupAreaController : MonoBehaviour
 
         // Raycast forward from camera
         
-        if (carrying != null){
-                Debug.Log("Carrying a Log drop it");
-                carrying.transform.parent = ItemsHolder.Instance.transform;
-                carrying.Drop();
-                carrying = null;
-
-            allowAction = false;
-            allowTimer = AllowTime;
+        if (carrying.Count > 0){
+            Debug.Log("Carrying a Log drop it");
+            ShrinkRestOfStack();            
         }
         else if (Physics.Raycast(tilt.transform.position, tilt.transform.forward, out RaycastHit hit, PlayerStats.PlayerReach, mask))
         {
@@ -414,6 +432,54 @@ public class PlayerPickupAreaController : MonoBehaviour
 
     }
 
+    private bool ShrinkRestOfStack()
+    {
+        if (carrying.Count == 0)
+            return false;
+        carrying[0].transform.parent = ItemsHolder.Instance.transform;
+        carrying[0].Drop();
+        carrying.RemoveAt(0);
+
+        if(carrying.Count>0)
+            shrink = true;
+
+        // Next action timed
+        allowAction = false;
+        allowTimer = AllowTime;
+        UpdateCarrierUI();
+        return true;
+    }
+
+    private void UpdateCarrierUI()
+    {
+        if (carrying.Count > 0)
+            uIController.UpdateCarryPanel(carrying[0].data, carrying.Count);
+        else
+        {
+            Debug.Log("Hiding");
+            uIController.HideCarryPanel();
+        }
+    }
+
+    private void ShrinkStack()
+    {
+        Vector3 acc = new Vector3(0, 0,2f);
+        Vector3 vel = new Vector3(0,0,0);
+        if(carrying.Count > 0 && carrying[0].transform.localPosition.z < 0)
+        {
+            vel += Time.deltaTime * acc;
+            foreach(var c in carrying)
+            {
+                c.transform.localPosition += vel;
+            }
+        }
+        else
+        {
+            shrink = false;
+            Debug.Log("Shrink ended");
+        }
+    }
+
     private void CarveAt(Vector3 pos, Chunk chunk, int set = 0)
     {
         // Paint a box here
@@ -429,26 +495,30 @@ public class PlayerPickupAreaController : MonoBehaviour
     }
 
     internal bool Carry(Carryable carryable)
-    {
-        if (carrying != null) return false;
-
+    {        
+        if (carrying.Count > 0 && carrying.Count >= carrying[0].data.max)
+            return false;
+    
+           
         Debug.Log("Start Carrying");
-        carrying = carryable;
+        carrying.Add(carryable);
+        UpdateCarrierUI();
 
-        if(carryable is Tool)
+        if (carryable is Tool)
         {
             Debug.Log("This is a tool");
-            carrying.transform.parent = toolPosition.transform;
+            carryable.transform.parent = toolPosition.transform;
         }
         else
         {
-            carrying.transform.parent = carryPosition.transform;
+            carryable.transform.parent = carryPosition.transform;
         }
-
+        
+        // Set Place and Rotation for the carried item
         //carrying.transform.position = carryPosition.transform.position;
-        carrying.transform.localPosition = Vector3.zero;
+        carryable.transform.localPosition = Vector3.zero+ Vector3.back*(carryable.data?.carrySize ?? 0)* (carrying.Count-1);
         //carrying.transform.rotation = carryPosition.transform.rotation;
-        carrying.transform.localRotation = Quaternion.identity;
+        carryable.transform.localRotation = Quaternion.identity;
 
         return true;
     }

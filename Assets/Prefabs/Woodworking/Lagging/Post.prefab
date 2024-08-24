@@ -81,7 +81,7 @@ Transform:
   - {fileID: 2035522631186819806}
   - {fileID: 4963750713108005285}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &3622102674537768707
 BoxCollider:
@@ -102,7 +102,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.54144, y: 3, z: 0.54144}
+  m_Size: {x: 0.4, y: 3, z: 0.4}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1313934559738760149
 MonoBehaviour:
@@ -116,11 +116,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72b8926b54133984dabd53911c5a2f75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  data: {fileID: 11400000, guid: 879779496b849ab4aa89a6088bab9b41, type: 2}
   col: {fileID: 3622102674537768707}
   rb: {fileID: 3210008724559003114}
   interractColliders:
   - {fileID: 6846036068976506698}
   - {fileID: 4879960810715974031}
+  isGhost: 0
   visibles: {fileID: 0}
   cutPoints:
   - {fileID: 4211182445593416066}
