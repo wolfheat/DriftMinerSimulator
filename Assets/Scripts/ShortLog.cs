@@ -1,8 +1,11 @@
 ﻿using UnityEngine;
 
-public class ShortLog : Carryable, Interactable
+public class ShortLog : Carryable, ICutable, Interactable
 {
     [SerializeField] GameObject[] cutPoints;
+
+    public Transform Placement { get; set; }
+
     public void Interract()
     {
         Debug.Log("Interract with ShortLog");

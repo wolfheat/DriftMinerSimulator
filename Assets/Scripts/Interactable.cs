@@ -1,4 +1,6 @@
-﻿public interface Interactable
+﻿using UnityEngine;
+
+public interface Interactable
 {
     public void Interract();
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface IGhost
 {
-    public Transform Placement { get; set; }
+    public Transform Placement { get;}
     public void ActivateVisibleCountDown();
 
 }
@@ -15,13 +15,12 @@ public interface IHAveConnectionPoint
 
 }
 
-public class Post : Carryable, Interactable, IHAveConnectionPoint, IGhost
+public class Post : Carryable, ICutable, Interactable, IHAveConnectionPoint, IGhost
 {
     [SerializeField] GameObject visibles;
     [SerializeField] GameObject[] cutPoints;
     [SerializeField] Transform[] connectPoints;
     [SerializeField] Transform[] laggingConnectPoints;
-    public Transform Placement { get; set; }
 
     public void Interract()
     {

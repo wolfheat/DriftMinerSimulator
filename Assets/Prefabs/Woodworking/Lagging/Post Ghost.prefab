@@ -129,9 +129,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72b8926b54133984dabd53911c5a2f75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  data: {fileID: 0}
   col: {fileID: 0}
   rb: {fileID: 0}
   interractColliders: []
+  isGhost: 0
+  placement: {fileID: 6538332665008404744}
   visibles: {fileID: 3484411739744799427}
   cutPoints:
   - {fileID: 0}
@@ -148,7 +151,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  placement: {fileID: 6642414307802537533}
+  laggingConnectPoints: []
 --- !u!1001 &4366934549607593874
 PrefabInstance:
   m_ObjectHideFlags: 0

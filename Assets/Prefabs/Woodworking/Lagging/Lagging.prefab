@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3151638674264434426}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -1.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -84,9 +84,9 @@ MonoBehaviour:
   rb: {fileID: 6419277409258494258}
   interractColliders: []
   isGhost: 0
+  placement: {fileID: 3151638674264434426}
   visibles: {fileID: 0}
   cutPoints: []
-  placement: {fileID: 380264248049633062}
 --- !u!65 &211479680188522656
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -2,6 +2,7 @@
 
 public class Chainsaw : Tool, Interactable
 {
+    public Transform Placement { get; set; }
     public void Interract()
     {
         Debug.Log("Interract with Chainsaw");
