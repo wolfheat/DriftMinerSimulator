@@ -11,7 +11,7 @@ public interface IGhost
 
 public interface IHAveConnectionPoint
 {
-    public Transform GetConnectpoint(Vector3 vector3);
+    public Transform GetConnectpoint(Vector3 vector3, Carryable placedItem);
 
 }
 
@@ -19,12 +19,13 @@ public class Post : Carryable, ICutable, Interactable, IHAveConnectionPoint, IGh
 {
     [SerializeField] GameObject visibles;
     [SerializeField] GameObject[] cutPoints;
-    [SerializeField] Transform[] connectPoints;
+    [SerializeField] Transform[] postConnectPoints;
     [SerializeField] Transform[] laggingConnectPoints;
 
-    public void Interract()
+
+    public void Interract(Carryable carryable)
     {
-        Debug.Log("Interract with Post");
+        Debug.Log("Interract with Post holding "+carryable?.name);
         // Start Carry and disable collider
 
         if (PlayerPickupAreaController.Instance.Carry(this))
@@ -39,37 +40,28 @@ public class Post : Carryable, ICutable, Interactable, IHAveConnectionPoint, IGh
     public void Cut()
     {
         Debug.Log("Cutting Post");
+        if (!Placed)
+        {
+            Debug.Log("Item is not placed");
+            return;
+        }
         foreach (GameObject pos in cutPoints)
         {
             ItemSpawner.Instance.CreateItemAt(ItemType.Lagging, pos.transform);
         }
         Destroy(gameObject);
     }
-    
-    public Transform GetLaggingConnectpoint(Vector3 refPoint)
-    {
-        Transform bestConnect = null;
         
-        float bestDistance = 10f;
-        foreach (Transform t in laggingConnectPoints)
-        {
-            float dist = Vector3.Distance(refPoint, t.position);
-            if (dist < bestDistance)
-            {
-                bestConnect = t;
-                bestDistance = dist;
-            }
-        }
-        
-        return bestConnect;
-    }
-    
-    public Transform GetConnectpoint(Vector3 refPoint)
+    public Transform GetConnectpoint(Vector3 refPoint, Carryable itemToPlace)
     {
         Transform bestConnect = transform;
-        
+        if(itemToPlace is Lagging)
+            Debug.Log("Item to place is Lagging");
+        if (!(itemToPlace is Post || itemToPlace is Lagging))
+            return bestConnect;
+
         float bestDistance = 10f;
-        foreach (Transform t in connectPoints)
+        foreach (Transform t in (itemToPlace is Post ? postConnectPoints : laggingConnectPoints))
         {
             float dist = Vector3.Distance(refPoint, t.position);
             if (dist < bestDistance)
@@ -78,7 +70,8 @@ public class Post : Carryable, ICutable, Interactable, IHAveConnectionPoint, IGh
                 bestDistance = dist;
             }
         }
-        
+        Debug.Log("Determined best connect point at "+bestConnect+" distance from "+refPoint+" = "+bestDistance+" showing Visualizer at "+bestConnect.position);
+        Visualizer.ShowAt(bestConnect.position);
         return bestConnect;
     }
 

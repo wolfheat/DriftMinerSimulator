@@ -6,9 +6,9 @@ public class ShortLog : Carryable, ICutable, Interactable
 
     public Transform Placement { get; set; }
 
-    public void Interract()
+    public void Interract(Carryable carryable)
     {
-        Debug.Log("Interract with ShortLog");
+        Debug.Log("Interract with ShortLog holding " + carryable?.name);
         // Start Carry and disable collider
 
         if (PlayerPickupAreaController.Instance.Carry(this))

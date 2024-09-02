@@ -3,9 +3,9 @@
 public class Chainsaw : Tool, Interactable
 {
     public Transform Placement { get; set; }
-    public void Interract()
+    public void Interract(Carryable carryable)
     {
-        Debug.Log("Interract with Chainsaw");
+        Debug.Log("Interract with Chainsaw holding " + carryable?.name);
 
         if (PlayerPickupAreaController.Instance.Carry(this))
         {

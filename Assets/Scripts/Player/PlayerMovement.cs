@@ -65,10 +65,19 @@ public class PlayerMovement : MonoBehaviour
         LookSensitivity = SavingUtility.gameSettingsData.playerInputSettings.MouseSensitivity;
     }
 
+    public bool HasFocus { get; set; }
+
+    private void OnApplicationFocus(bool focus)
+    {
+        Debug.Log("Focus Set to "+focus);
+        HasFocus = focus;
+    }
+
     private void Update()
     {
         DetemineCursor();
-        Look();
+        if(GameState.state == GameStates.Running)
+            Look();
     }
     private void FixedUpdate()
     {

@@ -2,9 +2,9 @@
 
 public class Shovel : Tool, Interactable
 {
-    public void Interract()
+    public void Interract(Carryable carryable)
     {
-        Debug.Log("Interract with Shovel");
+        Debug.Log("Interract with Shovel holding" + carryable?.name);
 
         if (PlayerPickupAreaController.Instance.Carry(this))
         {

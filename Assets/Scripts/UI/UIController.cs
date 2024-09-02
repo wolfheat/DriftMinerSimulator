@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 
@@ -56,7 +59,7 @@ public class UIController : MonoBehaviour
     public void OnEnable()
     {        
         //Inputs.Instance.Controls.Player.Tab.started += Toggle;
-        ///Inputs.Instance.Controls.Player.Esc.started += Pause;
+        Inputs.Instance.Controls.Player.Esc.started += Pause;
 
         Pause(false);
     }
@@ -65,7 +68,7 @@ public class UIController : MonoBehaviour
     {
         
         //Inputs.Instance.Controls.Player.Tab.started -= Toggle;
-        //Inputs.Instance.Controls.Player.Esc.started -= Pause;
+        Inputs.Instance.Controls.Player.Esc.started -= Pause;
     }
 
     public void UpdateCarryPanel(ItemData data, int amt = 1)
@@ -82,11 +85,11 @@ public class UIController : MonoBehaviour
     public void Pause(InputAction.CallbackContext context)
     {
         // Player can not toggle pause when dead
-        if (playerStats.IsDead) return;
+        if (playerStats != null && playerStats.IsDead ) return;
 
         bool doPause = GameState.state == GameStates.Running;
         Pause(doPause);
-        pauseScreen.SetActive(doPause);
+        pauseScreen?.SetActive(doPause);
     }
 
     public void Pause(bool pause = true)
@@ -174,4 +177,16 @@ public class UIController : MonoBehaviour
         Pause(false);
     }
 
+    internal void UpdateCarrierUI()
+    {
+        List<Carryable> carrying = PlayerPickupAreaController.Instance.Carrying;
+        if (carrying.Count > 0)
+            UpdateCarryPanel(carrying[0].data, carrying.Count);
+        else
+        {
+            Debug.Log("Hiding");
+            HideCarryPanel();
+        }
+
+    }
 }

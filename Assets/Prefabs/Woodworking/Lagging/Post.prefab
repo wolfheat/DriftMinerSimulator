@@ -129,7 +129,7 @@ MonoBehaviour:
   - {fileID: 4211182445593416066}
   - {fileID: 2801007762540654400}
   - {fileID: 8362427891445028483}
-  connectPoints:
+  postConnectPoints:
   - {fileID: 2854262141204079214}
   - {fileID: 4753669541205628266}
   laggingConnectPoints:

@@ -1,7 +1,4 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 public class PlayerPickupAreaController : MonoBehaviour
@@ -18,7 +15,7 @@ public class PlayerPickupAreaController : MonoBehaviour
     [SerializeField] GameObject carryPosition;
     [SerializeField] GameObject toolPosition;
     [SerializeField] List<Carryable> carrying = new();
-
+    public List<Carryable> Carrying { get { return carrying; }}
 
     public static PlayerPickupAreaController Instance { get; private set; }
 
@@ -143,14 +140,21 @@ public class PlayerPickupAreaController : MonoBehaviour
                 return;
             }
 
+            // Player is holding an item check if its carriable and store it for later
             Carryable carryable = (interactable as Carryable);
+            if (carryable == null)
+                return;
+
+            // Dont show shost on unplaced objects
+            if (useGhost && !carryable.Placed)
+                return;
 
             // Carrying something and interacting with something
             if (!useGhost)
             {
                 if (carrying[0] is Chainsaw)
                 {
-                    Debug.Log("Using chainsaw on "+interactable);
+                    Debug.Log("Using chainsaw on " + interactable);
 
                     ICutable cutable = interactable as ICutable;
                     if (cutable != null)
@@ -160,36 +164,46 @@ public class PlayerPickupAreaController : MonoBehaviour
                     }
                     return;
                 }
-                // IF item is the same as the carried pick it up if its not placed
-                /*
-                if (!carryable.Placed && SameType(carrying[0], interactable))
-                        interactable.Interract();
-                */
+                if (carrying[0] is Shovel)
+                {
+                    Debug.Log("Shoveling Interactable which is not allowed");
+                    return;
+                }
             }
 
-
-
             // Try to pick up the item
-            if (!useGhost && TryPickUp(interactable,carryable))
+            if (!useGhost && TryPickUp(interactable, carryable))
                 return;
 
-            // Dont show shost on unplaced objects
-            if (useGhost && !carryable.Placed)
-                return;
-                        
-            
+
             // Placing item on a place point that belongs to the target
-            Transform placePoint = (interactable as IHAveConnectionPoint).GetConnectpoint(hit.point);
+            Transform placePoint = (interactable as IHAveConnectionPoint)?.GetConnectpoint(hit.point, carrying[0]);
+            if(placePoint == null)
+            {
+                Debug.Log("Placepoint = null");
+                return;
+            }
+                   
 
             // if this gameobject has children toggle through them when scrolling
-            ConnectPoints[] spots = placePoint.GetComponentsInChildren<ConnectPoints>();
+            /*
+            ConnectPoints[] spots = carryable switch
+            {
+                Post => carryable.GetComponentsInChildren<ConnectPoints>(),
+                Lagging => carryable.GetComponentsInChildren<ConnectPoints>(),
+                _ => Array.Empty<ConnectPoints>()
+            };
+            if (spots.Length == 0)
+                return;
+            */
 
-            // Place depending on scroll
-            placePoint = spots[scrollValue % spots.Length].transform;
+            // PLacepoint is the point on the target where to place item - Place depending on scroll
+            //placePoint = spots[scrollValue % spots.Length].transform;
 
             // Place acording to best direction
             Vector3 playerDirection = transform.position - placePoint.position;
 
+            /*
             float dot = -1;
 
             foreach (var spot in spots)
@@ -201,7 +215,7 @@ public class PlayerPickupAreaController : MonoBehaviour
                     placePoint = spot.transform;
                 }
             }
-
+            */
             Carryable activeCarryable = useGhost ? SetGhostItem(carrying[0]) : carrying[0];
 
             Vector3 newPosition = new();
@@ -215,52 +229,25 @@ public class PlayerPickupAreaController : MonoBehaviour
             if (useGhost && activeCarryable == null)
                 return;
 
-            // Places aligned to other objects
-            Vector3 cardinalTowardsPlayer = Wolfheat.Convert.AlignCardinal(transform.position - placePoint.position);
-            newPosition = placePoint.position - activeCarryable.Placement.transform.localPosition.z * cardinalTowardsPlayer - activeCarryable.Placement.transform.localPosition.y * cardinalTowardsPlayer;
-            newRotation = Quaternion.LookRotation(cardinalTowardsPlayer, placePoint.transform.up);
+            // If Target is a placable send the task to it
+            bool didPosition = carryable.TryToPosition(transform.position,activeCarryable, placePoint);
 
-            /*
-            else
-            {
-                // Places unrelated
-                Carryable placeObject = carrying[0];
+            Debug.Log("Was the position valid? = "+ didPosition+" ghost = "+useGhost);
 
-                newPosition = placePoint.position - placeObject.Placement.transform.localPosition.y * placePoint.transform.up;
-                newRotation = placePoint.rotation;
-                placeObject.transform.parent = StructuresHolder.Instance.transform;
-            }*/
-
-            // If attempting to place on occupied position abort
-            if (!useGhost && !PositionFree<Post>(newPosition))
-            {
-                Debug.Log("Position is not Free");
-                return;
+            if (didPosition)
+            {   
+                if(!useGhost)
+                {
+                    Debug.Log("Removing the carryed item? = " + carrying[0].name);
+                    carrying[0].Place();
+                    carrying.RemoveAt(0);
+                    UIController.Instance.UpdateCarrierUI();
+                }
             }
 
-            activeCarryable.transform.position = newPosition;
-            activeCarryable.transform.rotation = newRotation;
-
-            Debug.Log("Showing "+ activeCarryable.name+" at "+newPosition);
 
             //activeCarryable.transform.parent = StructuresHolder.Instance.transform;
             
-            if(!useGhost)
-                activeCarryable.transform.SetParent(StructuresHolder.Instance.transform,true);
-            
-            Debug.Log("Placing the item at "+newPosition+" with rotation "+newRotation+" item is at "+activeCarryable.transform.position);
-
-            if (useGhost)
-                ghostpost.ActivateVisibleCountDown();
-            else
-            {
-                carrying[0].Place();
-                carrying.RemoveAt(0);
-
-                UpdateCarrierUI();
-                ghostpost.transform.position = Vector3.up * 10f;
-            }
-
             // END
             /// Does this place lagging on a post?
             /// 
@@ -385,7 +372,8 @@ public class PlayerPickupAreaController : MonoBehaviour
                             post.transform.parent = StructuresHolder.Instance.transform;
                             post.Place();
                             carrying.RemoveAt(0);
-                            UpdateCarrierUI();
+
+                            UIController.Instance.UpdateCarrierUI();
                         }
                     }
 
@@ -400,6 +388,7 @@ public class PlayerPickupAreaController : MonoBehaviour
     {
         if (carryable is Post)
         {
+            Debug.Log("Ghost set to Post");
             return ghostpost;
         }
         if (carryable is Lagging)
@@ -435,25 +424,6 @@ public class PlayerPickupAreaController : MonoBehaviour
             allowAction = false;
             allowTimer = AllowTime;
         }
-    }
-
-    private bool PositionFree<T>(Vector3 pos) where T : Carryable
-    {
-        // Check if posution is allready Occupied 
-        foreach (var item in StructuresHolder.Instance.transform.GetComponentsInChildren<T>())
-        {
-            // Ignore collide with ghosts
-            if (item.IsGhost)
-                continue;
-            if (Vector3.Distance(item.transform.position, pos) < 0.2f)
-            {
-                Debug.Log("Placing Lagging on another lagging, abort", item);
-                return false;
-            }
-
-        }
-        return true;
-
     }
 
     private void RightClickActionAtPoint()
@@ -511,19 +481,9 @@ public class PlayerPickupAreaController : MonoBehaviour
         // Next action timed
         allowAction = false;
         allowTimer = AllowTime;
-        UpdateCarrierUI();
-        return true;
-    }
 
-    private void UpdateCarrierUI()
-    {
-        if (carrying.Count > 0)
-            uIController.UpdateCarryPanel(carrying[0].data, carrying.Count);
-        else
-        {
-            Debug.Log("Hiding");
-            uIController.HideCarryPanel();
-        }
+        UIController.Instance.UpdateCarrierUI();
+        return true;
     }
 
     private void ShrinkStack()
@@ -567,7 +527,8 @@ public class PlayerPickupAreaController : MonoBehaviour
            
         Debug.Log("Start Carrying");
         carrying.Add(carryable);
-        UpdateCarrierUI();
+
+        UIController.Instance.UpdateCarrierUI();
 
         if (carryable is Tool)
         {

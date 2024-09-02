@@ -54,6 +54,11 @@ May 2024
 		* Carryables are lowered when one is dropped
 		* Also Laggings can be picked.
 
+1/9		* Placed posts can be dismanteled, should only work with loose ones
+		* Posts are unshifted, laggings shifts correctly and correct rotations
+
+		* Still got issues with aligning
+
 		* Started refactor of PickUp - still need to fix stuff, Cut of for ghowst and first click
 
 		* Change so any carriable can be picked up remove specific check somehow
